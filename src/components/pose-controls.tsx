@@ -22,19 +22,18 @@ interface PoseControlProps {
 export default function PoseControls({
   poses, deletePose, addPose, updatePose, setPoses
 }: PoseControlProps) {
-  
+
   return (
-    <div className="flex h-full flex-col">      
+    <div className="flex h-full flex-col">
       <Button className="flex mt-4 mx-4" onClick={addPose}>
-        <Plus className="mr-2 h-4 w-4" />
-        Add Pose
+        <Plus className="mr-2 h-4 w-4" /> Add Pose
       </Button>
-      
+
       <ScrollArea className="w-full flex-1 min-h-0 p-4">
-        <Sortable 
-          value={poses} 
+        <Sortable
+          value={poses}
           onValueChange={setPoses}
-          getItemValue={(item) => item.id}
+          getItemValue={(pose) => pose.id}
         >
           <Table>
             <SortableContent asChild>
@@ -45,36 +44,44 @@ export default function PoseControls({
                       <TableCell className="p-2">
                         <Accordion type="single" collapsible className="w-full">
                           <AccordionItem value={pose.id.toString()} className="border-none">
-                            <div className="flex flex-row items-center w-full justify-between gap-4 py-1 text-white">
-                              <div className="flex items-center gap-2 flex-1">
-                                <SortableItemHandle>
-                                  <Button variant="ghost" className="h-8 w-8 p-0 cursor-grab active:cursor-grabbing text-zinc-400 hover:text-white">
-                                    <GripVertical className="h-4 w-4" />
-                                  </Button>
-                                </SortableItemHandle>
+                            <div className="relative flex items-center w-full min-h-10 py-1">
+                              <div className="relative z-10 flex flex-1 items-center justify-between gap-4 pointer-events-none pr-8">
+                                <div className="flex items-center gap-2 flex-1 pointer-events-auto">
+                                  <SortableItemHandle>
+                                    <div
+                                      role="button"
+                                      className="flex items-center justify-center h-8 w-8 rounded-md cursor-grab active:cursor-grabbing text-zinc-400 hover:text-white"
+                                    >
+                                      <GripVertical className="h-4 w-4" />
+                                    </div>
+                                  </SortableItemHandle>
 
-                                <Input
-                                  id={`name-${pose.id}`}
-                                  type="text"
-                                  placeholder="Pose Name"
-                                  defaultValue={pose.name}
-                                  className="transition-colors max-w-xs focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
-                                  onChange={(e) => updatePose(pose.id, { name: e.target.value })}
-                                />
+                                  <Input
+                                    id={`name-${pose.id}`}
+                                    type="text"
+                                    placeholder="Pose Name"
+                                    defaultValue={pose.name}
+                                    className="transition-colors max-w-xs focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
+                                    onChange={(e) => updatePose(pose.id, { name: e.target.value })}
+                                  />
+                                </div>
+
+                                <div className="flex items-center gap-2 pointer-events-auto">
+                                  <div
+                                    role="button"
+                                    className="flex items-center justify-center h-8 w-8 rounded-md bg-transparent hover:bg-red-600/25 cursor-pointer"
+                                    onClick={() => deletePose(pose.id)}
+                                  >
+                                    <CircleMinus color="#C00000" />
+                                  </div>
+                                </div>
                               </div>
 
-                              <div className="flex items-center gap-2">
-                                <AccordionTrigger className="py-0 border-none hover:no-underline text-xs text-zinc-400 gap-1">
-                                  Details
-                                </AccordionTrigger>
-                                
-                                <Button 
-                                    className="bg-transparent hover:bg-transparent" 
-                                    onClick={()=>deletePose(pose.id)}
-                                >
-                                    <CircleMinus color="#C00000"/>
-                                </Button>
-                              </div>
+                              <AccordionTrigger
+                                className="absolute inset-0 z-0 flex h-full w-full items-center justify-between p-0 pr-2 border-none hover:no-underline text-zinc-400"
+                              >
+                                <span className="sr-only">Toggle Pose</span>
+                              </AccordionTrigger>
                             </div>
 
                             <AccordionContent className="pt-2 pb-4">
@@ -189,18 +196,16 @@ export default function PoseControls({
                                     <button
                                       type="button"
                                       onClick={() => updatePose(pose.id, { local: true })}
-                                      className={`flex-1 rounded-md justify-center text-center text-xs h-7 font-semibold text-white transition-colors ${
-                                        pose.local ? "bg-red-600" : "bg-zinc-800 hover:bg-zinc-700"
-                                      }`}
+                                      className={`flex-1 rounded-md justify-center text-center text-xs h-7 font-semibold text-white transition-colors ${pose.local ? "bg-red-600" : "bg-zinc-800 hover:bg-zinc-700"
+                                        }`}
                                     >
                                       Local
                                     </button>
                                     <button
                                       type="button"
                                       onClick={() => updatePose(pose.id, { local: false })}
-                                      className={`flex-1 rounded-md justify-center text-center text-xs h-7 font-semibold text-white transition-colors ${
-                                        !pose.local ? "bg-red-600" : "bg-zinc-800 hover:bg-zinc-700"
-                                      }`}
+                                      className={`flex-1 rounded-md justify-center text-center text-xs h-7 font-semibold text-white transition-colors ${!pose.local ? "bg-red-600" : "bg-zinc-800 hover:bg-zinc-700"
+                                        }`}
                                     >
                                       Global
                                     </button>
@@ -217,12 +222,12 @@ export default function PoseControls({
               </TableBody>
             </SortableContent>
           </Table>
-          
+
           <SortableOverlay>
             <div className="size-full rounded-none bg-primary/10" />
           </SortableOverlay>
         </Sortable>
-      </ScrollArea> 
+      </ScrollArea>
     </div>
   );
 }

@@ -7,11 +7,11 @@ import PoseControls from "@/components/pose-controls";
 
 export default function Home() {
   const {
-   poses,
-   deletePose,
-   addPose,
-   updatePose,
-   setPoses,
+    poses,
+    deletePose,
+    addPose,
+    updatePose,
+    setPoses,
   } = Poses();
 
   const {
@@ -48,12 +48,12 @@ export default function Home() {
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize="45%" minSize="30%">
           <div className="flex h-full w-full items-center justify-center overflow-hidden">
-              <img
-                  src="./images/decodeField.png"
-                  className="max-h-full max-w-full object-contain"
-                  alt="Decode Field"
-                  draggable="false"
-              />
+            <img
+              src="./images/decodeField.png"
+              className="max-h-full max-w-full object-contain"
+              alt="Decode Field"
+              draggable="false"
+            />
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle />
