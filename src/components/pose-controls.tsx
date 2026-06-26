@@ -36,11 +36,11 @@ export default function PoseControls ({
     }
   }
 
-  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>, poseId: number, field: keyof Pose) {
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>, poseId: number, field: keyof Pose, min: number, max: number) {
     let final = null;
     if (e.target.value !== "") {
       const parsed = parseFloat(e.target.value);
-      if (!isNaN(parsed)) { final = Math.max(-70.75, Math.min(70.75, parsed)); }
+      if (!isNaN(parsed)) { final = Math.max(min, Math.min(max, parsed)); }
     }
     updatePose(poseId, { [field]: final });
   }
@@ -129,7 +129,7 @@ export default function PoseControls ({
                                 max={70.75}
                                 className="w-20 transition-colors focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
                                 defaultValue={pose.x ?? 0}
-                                onChange={(e) => handleInputChange(e, pose.id, 'x')}
+                                onChange={(e) => handleInputChange(e, pose.id, 'x', -70.75, 70.75)}
                                 onBlur={(e) => handleInputBlur(e, pose.id, 'x', -70.75, 70.75)}
                               />
                             </Field>
@@ -146,7 +146,7 @@ export default function PoseControls ({
                                 max={70.75}
                                 className="w-20 transition-colors focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
                                 defaultValue={pose.y ?? 0}
-                                onChange={(e) => handleInputChange(e, pose.id, 'y')}
+                                onChange={(e) => handleInputChange(e, pose.id, 'y', -70.75, 70.75)}
                                 onBlur={(e) => handleInputBlur(e, pose.id, 'y', -70.75, 70.75)}
                               />
                             </Field>
@@ -165,7 +165,7 @@ export default function PoseControls ({
                                 max={360}
                                 className="w-20 transition-colors focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
                                 defaultValue={pose.heading ?? 0}
-                                onChange={(e) => handleInputChange(e, pose.id, 'heading')}
+                                onChange={(e) => handleInputChange(e, pose.id, 'heading', 0, 360)}
                                 onBlur={(e) => handleInputBlur(e, pose.id, 'heading', 0, 360)}
                               />
                             </Field>
@@ -181,7 +181,7 @@ export default function PoseControls ({
                                 disabled={!pose.arcPose} // TODO: Add limits and clamping for radius (make sure to account for units)
                                 className="w-20 transition-all duration-300 ease-in-out focus-visible:border-red-500 focus-visible:ring-red-500 disabled:cursor-not-allowed disabled:opacity-40 bg-zinc-900"
                                 defaultValue={pose.radius ?? 0}
-                                onChange={(e) => handleInputChange(e, pose.id, 'radius')}
+                                onChange={(e) => handleInputChange(e, pose.id, 'radius', 0, 100)}
                                 onBlur={(e) => handleInputBlur(e, pose.id, 'radius', 0, 100)} // TODO: Proper limits
                               />
                             </Field>
