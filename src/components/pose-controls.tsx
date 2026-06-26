@@ -18,7 +18,7 @@ interface PoseControlProps {
   setPoses: Dispatch<SetStateAction<Pose[]>>;
 }
 
-export default function PoseControls({
+export default function PoseControls ({
   poses, deletePose, addPose, updatePose, setPoses
 }: PoseControlProps) {
 

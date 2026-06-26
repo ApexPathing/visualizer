@@ -1,7 +1,7 @@
 'use client'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 
-import PathControls from "@/components/path-controls2";
+import PathControls from "@/components/path-controls";
 import { Paths, Poses } from "@/hooks/use-visualizer";
 import PoseControls from "@/components/pose-controls";
 
