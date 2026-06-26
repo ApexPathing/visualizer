@@ -4,6 +4,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/componen
 import PathControls from "@/components/path-controls";
 import { Paths, Poses } from "@/hooks/use-visualizer";
 import PoseControls from "@/components/pose-controls";
+import DrawPaths from "@/components/path-overlay";
 
 export default function Home() {
   const {
@@ -53,8 +54,10 @@ export default function Home() {
               className="max-h-full max-w-full object-contain"
               alt="Decode Field"
               draggable="false"
+              id="field-canvas"
             />
           </div>
+          <DrawPaths poses={poses} />
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize="27.5%" maxSize="40%" minSize="20%">

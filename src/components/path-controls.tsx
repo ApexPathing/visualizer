@@ -104,7 +104,7 @@ export default function PathControls ({
                               <div className="flex flex-row w-full items-center">
                                 <AccordionTrigger className="hover:no-underline">
                                   <div className="flex w-fit text-xs flex-row mr-2">
-                                    Control Points
+                                    Control Points ({path.controlPoints?.length || 0})
                                   </div>
                                 </AccordionTrigger>
                                 <Button
@@ -183,7 +183,7 @@ export default function PathControls ({
                               <div className="flex flex-row w-full items-center">
                                 <AccordionTrigger className="hover:no-underline">
                                   <div className="flex w-fit flex-row text-xs gap-2 mr-2">
-                                    Callbacks
+                                    Callbacks ({path.callbacks?.length || 0})
                                   </div>
                                 </AccordionTrigger>
 
@@ -193,7 +193,7 @@ export default function PathControls ({
                               </div>
                               <AccordionContent className="flex h-full flex-col gap-2">
                                 { /* TODO: When we add support for converting distance to s value, make sure that they are compared by s value, not just the raw distance */ }
-                                {(path.callbacks.sort((a, b) => a.value - b.value) || []).map((callback) => ( 
+                                {(path.callbacks.sort((a, b) => (a.value ?? 0) - (b.value ?? 0)) || []).map((callback) => ( 
                                   <div className="flex flex-row mt-2 items-center gap-2 text-2xl" key={callback.id}>
                                     <Button className="bg-transparent hover:bg-transparent p-0 h-auto" onClick={() => deleteCallback(path.id, path.callbacks, callback.id)}>
                                       <CircleMinus color="#C00000" />
@@ -202,16 +202,23 @@ export default function PathControls ({
                                       <Input
                                         id="callback-input"
                                         type="number"
-                                        placeholder="Dist"
-                                        value={callback.value}
-                                        onChange={(e) => {
-                                          updateCallback(path.id, path.callbacks, callback.id, {
-                                            value: parseFloat(e.target.value) || 0
-                                          });
+                                        placeholder={callback.distValue ? "Dist" : "S"}
+                                        defaultValue={callback.value ?? 0}
+                                        onChange={(e) => { // TODO: Handle distance values with units (currently just behaves like an s value regardless)
+                                          let final = null;
+                                          if (e.target.value !== "") {
+                                            const parsed = parseFloat(e.target.value);
+                                            if (!isNaN(parsed)) { final = Math.max(0, Math.min(1, parsed)); } 
+                                          }
+                                          updateCallback(path.id, path.callbacks, callback.id, { value: final});
                                         }}
-                                        onClick={() => {
-                                          if (callback.value == 0) {
-                                            updateCallback(path.id, path.callbacks, callback.id, { value: 0 });
+                                        onBlur={(e) => {
+                                          if (e.target.value !== "") {
+                                            const parsed = parseFloat(e.target.value);
+                                            if (!isNaN(parsed)) {
+                                              const final = Math.max(0, Math.min(1, parsed));
+                                              e.target.value = final.toString();
+                                            }
                                           }
                                         }}
                                         className="min-w-16 max-w-20 transition-colors focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
@@ -228,7 +235,6 @@ export default function PathControls ({
                                           }}
                                         >
                                           <ComboboxInput
-                                            placeholder=""
                                             className="min-w-14 max-w-14 focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
                                           />
                                           <ComboboxContent>
@@ -248,7 +254,7 @@ export default function PathControls ({
                                       <Input
                                         id={`callback-method-${callback.id}`}
                                         type="text"
-                                        value={callback.method}
+                                        value={callback.method ?? ""}
                                         onChange={(e) => {
                                           updateCallback(path.id, path.callbacks, callback.id, {
                                             method: e.target.value
