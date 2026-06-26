@@ -133,12 +133,16 @@ export default function PathControls ({
                                             >
                                               <CircleMinus color="#C00000" />
                                             </Button>
-                                            
                                             <Combobox
-                                              items={poses.map((p) => p)}
+                                              items={poses.filter(pose => 
+                                                pose.name !== "" &&
+                                                (pose.id === controlPoint.poseId || path.controlPoints.every(cp => cp.poseId !== pose.id))
+                                              )}
+                                              value={poses.find(p => p.id === controlPoint.poseId)?.name || ""}
                                               onValueChange={(value) => {
+                                                const selectedPose = poses.find((p) => p.name === value);
                                                 updateControlPoint(path.id, path.controlPoints, controlPoint.id, {
-                                                  poseId: (value as number) || -1
+                                                  poseId: selectedPose ? selectedPose.id : -1
                                                 });
                                               }}
                                             >
@@ -147,7 +151,7 @@ export default function PathControls ({
                                                 <ComboboxEmpty>No poses found</ComboboxEmpty>
                                                 <ComboboxList>
                                                   {(pose: Pose) => (
-                                                    <ComboboxItem key={pose.id} value={pose.id}>
+                                                    <ComboboxItem key={pose.id} value={pose.name}>
                                                       {pose.name}
                                                     </ComboboxItem>
                                                   )}
@@ -188,7 +192,8 @@ export default function PathControls ({
                                 </Button>
                               </div>
                               <AccordionContent className="flex h-full flex-col gap-2">
-                                {(path.callbacks || []).map((callback) => (
+                                { /* TODO: When we add support for converting distance to s value, make sure that they are compared by s value, not just the raw distance */ }
+                                {(path.callbacks.sort((a, b) => a.value - b.value) || []).map((callback) => ( 
                                   <div className="flex flex-row mt-2 items-center gap-2 text-2xl" key={callback.id}>
                                     <Button className="bg-transparent hover:bg-transparent p-0 h-auto" onClick={() => deleteCallback(path.id, path.callbacks, callback.id)}>
                                       <CircleMinus color="#C00000" />

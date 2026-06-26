@@ -22,6 +22,20 @@ export default function PoseControls ({
   poses, deletePose, addPose, updatePose, setPoses
 }: PoseControlProps) {
 
+  function checkForDuplicateName(e: React.FocusEvent<HTMLInputElement>, poseId: number) {
+    if (e.target.value.trim() === "") { updatePose(poseId, { name: "" }); return; }
+    if (!poses.every(p => e.target.value !== p.name)) {
+      let suffix = 1;
+      let newName = e.target.value;
+      while (!poses.every(p => newName !== p.name)) {
+        newName = `${e.target.value}_${suffix}`;
+        suffix++;
+      }
+      updatePose(poseId, { name: newName });
+      e.target.value = newName;
+    }
+  }
+
   return (
     <div className="flex h-full flex-col">
       <Button className="flex mt-4 mx-4" onClick={addPose}>
@@ -59,6 +73,7 @@ export default function PoseControls ({
                               defaultValue={pose.name}
                               className="transition-colors focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
                               onChange={(e) => updatePose(pose.id, { name: e.target.value })}
+                              onBlur={(e) => checkForDuplicateName(e, pose.id)}
                             />
                           </div>
 
