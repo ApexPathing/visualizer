@@ -54,7 +54,7 @@ export default function PathControls({
           onValueChange={setPaths}
           getItemValue={(path) => path.id}
         >
-          <Table className="">
+          <Table>
             <SortableContent asChild>
               <TableBody>
                 {paths.map((path) => (
@@ -75,9 +75,9 @@ export default function PathControls({
                                 <AccordionTrigger>
                                   <div className="flex w-fit flex-row gap-2 mr-2">
                                     <Input
-                                      id={"PATH"}
+                                      id={`path-${path.id}-name`}
                                       type="text"
-                                      placeholder="Pose Name"
+                                      placeholder="Path Name"
                                       value={path.name}
                                       className="transition-colors mr-2 focus-visible:border-red-500 focus-visible:ring-red-500"
                                       onChange={(e) => updatePath(path.id, { name: e.target.value })}

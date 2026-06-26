@@ -1,7 +1,7 @@
 'use client'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 
-import PathControls from "@/components/path-controls";
+import PathControls from "@/components/path-controls2";
 import { Paths, Poses } from "@/hooks/use-visualizer";
 import PoseControls from "@/components/pose-controls";
 
@@ -34,7 +34,7 @@ export default function Home() {
         orientation="horizontal"
         className="min-h-full max-w-md rounded-lg border min-w-full"
       >
-        <ResizablePanel defaultSize="27.5%" maxSize="50%" minSize="20%">
+        <ResizablePanel defaultSize="27.5%" maxSize="40%" minSize="20%">
           <span>
             <PoseControls
               poses={poses}
@@ -46,7 +46,7 @@ export default function Home() {
           </span>
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel defaultSize="45%" minSize="30%">
+        <ResizablePanel defaultSize="45%" minSize="35%">
           <div className="flex h-full w-full items-center justify-center overflow-hidden">
             <img
               src="./images/decodeField.png"
@@ -57,7 +57,7 @@ export default function Home() {
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel defaultSize="27.5%" maxSize="50%" minSize="20%">
+        <ResizablePanel defaultSize="27.5%" maxSize="40%" minSize="20%">
           <div className="h-full items-center justify-center">
             <span className="font-semibold">
               <PathControls

@@ -9,7 +9,7 @@ export const Poses = () => {
 
       const newPose: Pose = {
         id: Date.now(),
-        name: `Pose ${nextNumber}`,
+        name: `pose${nextNumber}`,
         x: 0,
         y: 0,
         heading: 0,
@@ -48,7 +48,7 @@ export const Paths = () => {
       const prevEndPose = prevPath ? (prevPath.controlPoints.at(-1) || null) : null;
       const newPath: Path = {
         id: Date.now(),
-        name: `Path ${nextNumber}`,
+        name: `path${nextNumber}`,
         controlPoints: [],
         callbacks: [],
         prevEndPose: prevEndPose
