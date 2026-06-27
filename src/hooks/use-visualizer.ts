@@ -44,14 +44,13 @@ export const Paths = () => {
     setPaths((prevPaths) => {
       const nextNumber = prevPaths.length + 1;
 
-      const prevPath = prevPaths.length !== 0 ? prevPaths[prevPaths.length - 1] : null;
-      const prevEndPose = prevPath ? (prevPath.controlPoints.at(-1) || null) : null;
       const newPath: Path = {
         id: Date.now(),
         name: `path${nextNumber}`,
         controlPoints: [],
         callbacks: [],
-        prevEndPose: prevEndPose
+        quickBuild: false, // TODO: Replace these defaults with user defined settings
+        holonomic: true,
       };
 
       return [...prevPaths, newPath];
@@ -98,7 +97,7 @@ export const Paths = () => {
       id: Date.now(),
       method: "",
       value: 0,
-      type: CallbackType.DISTANCE
+      valueType: "D"
     };
     updatePath(pathId, {
       callbacks: [...currentCallbacks, newCallback]

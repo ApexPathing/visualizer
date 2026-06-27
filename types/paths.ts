@@ -1,14 +1,8 @@
-enum CallbackType {
-  S = 'S',
-  DISTANCE = 'D',
-  ANGULAR = 'A'
-}
-
 interface Callback {
   id: number
   method: string | null
   value: number | null
-  type: CallbackType
+  valueType: "S" | "D" | "A" // S for normalized distance, D for distance units, A for angular units
 }
 
 interface ControlPoint {
@@ -22,5 +16,6 @@ interface Path {
   name: string
   controlPoints: ControlPoint[]
   callbacks: Callback[]
-  prevEndPose: ControlPoint | null
+  quickBuild: boolean
+  holonomic: boolean
 }

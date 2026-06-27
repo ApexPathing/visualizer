@@ -96,14 +96,13 @@ export default function PoseControls ({
                             />
                           </div>
 
-                          <div className="flex items-center gap-2 pointer-events-auto">
-                            <div
-                              role="button"
-                              className="flex items-center justify-center h-8 w-8 rounded-md bg-transparent hover:bg-red-600/25 cursor-pointer"
+                          <div className="flex items-center pointer-events-auto">
+                            <Button
+                              className="bg-transparent hover:bg-brand-primary/25"
                               onClick={() => deletePose(pose.id)}
                             >
-                              <CircleMinus color="#C00000" />
-                            </div>
+                              <CircleMinus className="h-8 w-8 text-brand-primary" color="currentColor" />
+                            </Button>
                           </div>
                         </div>
 
@@ -115,7 +114,7 @@ export default function PoseControls ({
                       </div>
 
                       <AccordionContent className="pt-2 pb-4">
-                        <div className="flex flex-col gap-4 ml-8">
+                        <div className="flex flex-col gap-4 ml-4">
                           <div className="grid grid-cols-2 gap-2">
                             <Field>
                               <FieldLabel htmlFor={`x-${pose.id}`} className="text-white text-xs">
@@ -205,16 +204,14 @@ export default function PoseControls ({
                               <button
                                 type="button"
                                 onClick={() => updatePose(pose.id, { local: true })}
-                                className={`flex-1 rounded-md justify-center text-center text-xs h-7 font-semibold text-white transition-colors ${pose.local ? "bg-red-600" : "bg-zinc-800 hover:bg-zinc-700"
-                                  }`}
+                                className={`flex-1 rounded-md justify-center text-center text-xs h-7 font-semibold transition-colors ${pose.local ? "bg-brand-primary" : "bg-zinc-800 hover:bg-zinc-700"}`}
                               >
                                 Local
                               </button>
                               <button
                                 type="button"
                                 onClick={() => updatePose(pose.id, { local: false })}
-                                className={`flex-1 rounded-md justify-center text-center text-xs h-7 font-semibold text-white transition-colors ${!pose.local ? "bg-red-600" : "bg-zinc-800 hover:bg-zinc-700"
-                                  }`}
+                                className={`flex-1 rounded-md justify-center text-center text-xs h-7 font-semibold transition-colors ${!pose.local ? "bg-brand-primary" : "bg-zinc-800 hover:bg-zinc-700"}`}
                               >
                                 Global
                               </button>
