@@ -99,9 +99,9 @@ export default function PathControls ({
                       </div>
 
                       <AccordionContent className="pt-2 h-full">
-                        <div className="flex flex-col ml-5 @container">
-                          <div className="flex flex-1 w-full gap-2 my-1">
-                            <button
+                        <div className="flex flex-col ml-5">
+                          <div className="flex flex-1 w-full gap-2 my-1"> 
+                            <button // TODO: Add a default build method in the settings and set it in use-visualizer.ts
                               type="button"
                               onClick={() => updatePath(path.id, { quickBuild: false })}
                               className={`flex-1 rounded-md justify-center text-center text-xs h-7 font-semibold transition-colors ${!path.quickBuild ? "bg-brand-primary" : "bg-zinc-800 hover:bg-zinc-700"}`}
@@ -117,7 +117,7 @@ export default function PathControls ({
                             </button>
                           </div>
                           <div className="flex flex-1 w-full gap-2 my-1">
-                            <button
+                            <button // TODO: Add a setting for drivetrain type (holonomic, tank, butterfly) and only show this option for butterfly
                               type="button"
                               onClick={() => updatePath(path.id, { holonomic: true })}
                               className={`flex-1 rounded-md justify-center text-center text-xs h-7 font-semibold transition-colors ${path.holonomic ? "bg-brand-primary" : "bg-zinc-800 hover:bg-zinc-700"}`}
