@@ -1,8 +1,14 @@
+enum CallbackType {
+  S = 'S',
+  DISTANCE = 'D',
+  ANGULAR = 'A'
+}
+
 interface Callback {
   id: number
   method: string | null
-  value: number | null // TODO: Replace with just s and convert from distance to s when creating
-  distValue: boolean // true if the value is a distance, false if it is an s value
+  value: number | null
+  type: CallbackType
 }
 
 interface ControlPoint {

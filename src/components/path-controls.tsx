@@ -202,7 +202,7 @@ export default function PathControls ({
                                       <Input
                                         id="callback-input"
                                         type="number"
-                                        placeholder={callback.distValue ? "Dist" : "S"}
+                                        placeholder="Value"
                                         defaultValue={callback.value ?? 0}
                                         onChange={(e) => { // TODO: Handle distance values with units (currently just behaves like an s value regardless)
                                           let final = null;
@@ -226,11 +226,11 @@ export default function PathControls ({
 
                                       <div className="ml-1" title="Select whether the value is an S value (normalized 0-1 distance) or D (distance units)">
                                         <Combobox
-                                          items={["S", "D"]}
-                                          defaultValue={callback.distValue ? "D" : "S"}
+                                          items={["S", "D", "A"]}
+                                          defaultValue={callback.type === CallbackType.DISTANCE ? "D" : callback.type === CallbackType.ANGULAR ? "A" : "S"}
                                           onValueChange={(value) => {
                                             updateCallback(path.id, path.callbacks, callback.id, {
-                                              distValue: value === "D"
+                                              type: value === "D" ? CallbackType.DISTANCE : value === "A" ? CallbackType.ANGULAR : CallbackType.S
                                             });
                                           }}
                                         >
