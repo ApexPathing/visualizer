@@ -227,10 +227,10 @@ export default function PathControls ({
                                       <div className="ml-1" title="Select whether the value is an S value (normalized 0-1 distance) or D (distance units)">
                                         <Combobox
                                           items={["S", "D", "A"]}
-                                          defaultValue={callback.type === CallbackType.DISTANCE ? "D" : callback.type === CallbackType.ANGULAR ? "A" : "S"}
+                                          defaultValue={callback.type}
                                           onValueChange={(value) => {
                                             updateCallback(path.id, path.callbacks, callback.id, {
-                                              type: value === "D" ? CallbackType.DISTANCE : value === "A" ? CallbackType.ANGULAR : CallbackType.S
+                                              type: value as CallbackType
                                             });
                                           }}
                                         >

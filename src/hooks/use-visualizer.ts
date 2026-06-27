@@ -98,7 +98,7 @@ export const Paths = () => {
       id: Date.now(),
       method: "",
       value: 0,
-      distValue: true
+      type: CallbackType.DISTANCE
     };
     updatePath(pathId, {
       callbacks: [...currentCallbacks, newCallback]
