@@ -1,12 +1,16 @@
 'use client';
 
-import { useEffect, useRef } from "react";
+import { bspline } from "@/lib/bspline";
+import { useEffect, useRef, useState } from "react";
 
 interface PathDrawProps {
   poses: Pose[];
+  paths: Path[];
 }
 
-export default function DrawPaths({ poses }: PathDrawProps) {
+export default function DrawPaths({ poses, paths}: PathDrawProps) {
+
+  
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
