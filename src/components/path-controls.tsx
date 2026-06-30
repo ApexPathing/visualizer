@@ -9,6 +9,8 @@ import { Input } from "./ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "./ui/combobox";
 import { Sortable, SortableContent, SortableItem, SortableItemHandle, SortableOverlay } from "./ui/sortable";
+import { Switch } from "./ui/switch";
+import { Separator } from "./ui/separator";
 
 interface PathControlProps {
   poses: Pose[];
@@ -74,19 +76,18 @@ export default function PathControls ({
                               type="text"
                               placeholder="Path Name"
                               defaultValue={path.name}
-                              className="transition-colors focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
+                              className="transition-colors focus-visible:border-brand-primary focus-visible:ring-brand-primary bg-zinc-900"
                               onChange={(e) => updatePath(path.id, { name: e.target.value })}
                             />
                           </div>
 
-                          <div className="flex items-center gap-2 pointer-events-auto">
-                            <div
-                              role="button"
-                              className="flex items-center justify-center h-8 w-8 rounded-md bg-transparent hover:bg-red-600/25 cursor-pointer"
+                          <div className="flex items-center pointer-events-auto">
+                            <Button
+                              className="bg-transparent hover:bg-brand-primary/25"
                               onClick={() => deletePath(path.id)}
                             >
-                              <CircleMinus color="#C00000" />
-                            </div>
+                              <CircleMinus className="h-8 w-8 text-brand-primary" color="currentColor" />
+                            </Button>
                           </div>
                         </div>
 
@@ -99,6 +100,39 @@ export default function PathControls ({
 
                       <AccordionContent className="pt-2 h-full">
                         <div className="flex flex-col ml-5">
+                          <div className="flex flex-1 w-full gap-2 my-1"> 
+                            <button // TODO: Add a default build method in the settings and set it in use-visualizer.ts
+                              type="button"
+                              onClick={() => updatePath(path.id, { quickBuild: false })}
+                              className={`flex-1 rounded-md justify-center text-center text-xs h-7 font-semibold transition-colors ${!path.quickBuild ? "bg-brand-primary" : "bg-zinc-800 hover:bg-zinc-700"}`}
+                            >
+                              Default Build
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => updatePath(path.id, { quickBuild: true })}
+                              className={`flex-1 rounded-md justify-center text-center text-xs h-7 font-semibold transition-colors ${path.quickBuild ? "bg-brand-primary" : "bg-zinc-800 hover:bg-zinc-700"}`}
+                            >
+                              Quick Build
+                            </button>
+                          </div>
+                          <div className="flex flex-1 w-full gap-2 my-1">
+                            <button // TODO: Add a setting for drivetrain type (holonomic, tank, butterfly) and only show this option for butterfly
+                              type="button"
+                              onClick={() => updatePath(path.id, { holonomic: true })}
+                              className={`flex-1 rounded-md justify-center text-center text-xs h-7 font-semibold transition-colors ${path.holonomic ? "bg-brand-primary" : "bg-zinc-800 hover:bg-zinc-700"}`}
+                            >
+                              Holonomic
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => updatePath(path.id, { holonomic: false })}
+                              className={`flex-1 rounded-md justify-center text-center text-xs h-7 font-semibold transition-colors ${!path.holonomic ? "bg-brand-primary" : "bg-zinc-800 hover:bg-zinc-700"}`}
+                            >
+                              Tank
+                            </button>
+                          </div>
+
                           <Accordion type="single" collapsible defaultValue="item-1" className="w-full" >
                             <AccordionItem value="item-1" className="border-none">
                               <div className="flex flex-row w-full items-center">
@@ -108,10 +142,10 @@ export default function PathControls ({
                                   </div>
                                 </AccordionTrigger>
                                 <Button
-                                  className="ml-2 bg-transparent hover:bg-transparent"
+                                  className="ml-2 bg-transparent hover:bg-lime-500/25"
                                   onClick={() => addControlPoint(path.id, path.controlPoints)}
                                 >
-                                  <CirclePlus color="#03fc0f" />
+                                  <CirclePlus className="h-4 w-4 text-lime-500" color="currentColor" />
                                 </Button>
                               </div>
                               
@@ -131,7 +165,7 @@ export default function PathControls ({
                                               className="bg-transparent hover:bg-transparent p-0 h-auto"
                                               onClick={() => deleteControlPoint(path.id, path.controlPoints, controlPoint.id)}
                                             >
-                                              <CircleMinus color="#C00000" />
+                                              <CircleMinus className="h-4 w-4 text-brand-primary" color="currentColor" />
                                             </Button>
                                             <Combobox
                                               items={poses.filter(pose => 
@@ -178,7 +212,7 @@ export default function PathControls ({
                             </AccordionItem>
                           </Accordion>
 
-                          <Accordion type="single" collapsible defaultValue="item-1" className="w-full mt-1" >
+                          <Accordion type="single" collapsible defaultValue="item-1" className="w-full" >
                             <AccordionItem value="item-1" className="border-none">
                               <div className="flex flex-row w-full items-center">
                                 <AccordionTrigger className="hover:no-underline">
@@ -187,8 +221,11 @@ export default function PathControls ({
                                   </div>
                                 </AccordionTrigger>
 
-                                <Button className="ml-2 bg-[#111111] hover:bg-[#111111]" onClick={() => addCallback(path.id, path.callbacks)}>
-                                  <CirclePlus color="#03fc0f" />
+                                <Button 
+                                  className="ml-2 bg-transparent hover:bg-lime-500/25" 
+                                  onClick={() => addCallback(path.id, path.callbacks)} 
+                                >
+                                  <CirclePlus className="h-4 w-4 text-lime-500" color="currentColor" />
                                 </Button>
                               </div>
                               <AccordionContent className="flex h-full flex-col gap-2">
@@ -224,13 +261,13 @@ export default function PathControls ({
                                         className="min-w-16 max-w-20 transition-colors focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
                                       />
 
-                                      <div className="ml-1" title="Select whether the value is an S value (normalized 0-1 distance) or D (distance units)">
+                                      <div className="ml-1" title="Select whether the value is an S value (normalized 0-1 distance), D (distance units), or A (angular units)">
                                         <Combobox
                                           items={["S", "D", "A"]}
-                                          defaultValue={callback.type}
+                                          defaultValue={callback.valueType}
                                           onValueChange={(value) => {
                                             updateCallback(path.id, path.callbacks, callback.id, {
-                                              type: value as CallbackType
+                                              valueType: value ?? "D"
                                             });
                                           }}
                                         >
