@@ -196,6 +196,4 @@ function multiplyMatrices(matrix:number[][], window:number[]){
         })
     }
     return result;
-    
-
 }
