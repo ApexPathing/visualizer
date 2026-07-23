@@ -6,6 +6,7 @@ import { Paths, Poses } from "@/hooks/use-visualizer";
 import PoseControls from "@/components/pose-controls";
 import DrawPaths from "@/components/path-overlay";
 
+
 export default function Home() {
   const {
     poses,
@@ -57,7 +58,7 @@ export default function Home() {
               id="field"
             />
           </div>
-          <DrawPaths poses={poses} />
+          <DrawPaths poses={poses} paths={paths}/>
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel maxSize="1000px" minSize="350px" collapsible>
