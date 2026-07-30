@@ -7,7 +7,7 @@ import { CircleMinus, GripVertical, Plus } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Field, FieldLabel } from "@/components/ui/field";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
 import { Sortable, SortableContent, SortableItem, SortableItemHandle, SortableOverlay } from "./ui/sortable";
 
 interface PoseControlProps {
@@ -22,6 +22,7 @@ export default function PoseControls ({
   poses, deletePose, addPose, updatePose, setPoses
 }: PoseControlProps) {
 
+  
   function checkForDuplicateName(e: React.FocusEvent<HTMLInputElement>, poseId: number) {
     if (e.target.value.trim() === "") { updatePose(poseId, { name: "" }); return; }
     if (!poses.every(p => e.target.value !== p.name)) {
@@ -120,19 +121,18 @@ export default function PoseControls ({
                               <FieldLabel htmlFor={`x-${pose.id}`} className="text-white text-xs">
                                 X (unit):
                               </FieldLabel>
-                              <Input
-                                id={`x-${pose.id}`}
-                                type="number"
-                                placeholder="X"
-                                min={-70.75}
-                                max={70.75}
-                                className="w-20 transition-colors focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
-                                defaultValue={pose.x ?? 0}
-                                onChange={(e) => handleInputChange(e, pose.id, 'x', -70.75, 70.75)}
-                                onBlur={(e) => handleInputBlur(e, pose.id, 'x', -70.75, 70.75)}
-                              />
+                                <Input
+                                  id={`x-${pose.id}`}
+                                  type="number"
+                                  placeholder="X"
+                                  min={-70.75}
+                                  max={70.75}
+                                  className="w-20 transition-colors focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
+                                  defaultValue={pose.x ?? 0}
+                                  onChange={(e) => handleInputChange(e, pose.id, 'x', -70.75, 70.75)}
+                                  onBlur={(e) => handleInputBlur(e, pose.id, 'x', -70.75, 70.75)}
+                                />
                             </Field>
-
                             <Field>
                               <FieldLabel htmlFor={`y-${pose.id}`} className="text-white text-xs">
                                 Y (unit):
