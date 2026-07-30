@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { bsplineClass } from '@/lib/bsplineClass';
-import Konva from "konva";
 
 interface PathDrawProps {
   poses: Pose[];
@@ -11,30 +10,39 @@ interface PathDrawProps {
 
 export default function DrawPaths({ poses, paths }: PathDrawProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
+  const imageRef = useRef<HTMLImageElement>(null);
+  
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const img = imageRef.current;
+    if (!canvas || !img) return;
 
-    const rect = canvas.getBoundingClientRect();
+    const rect = img.getBoundingClientRect();
+    
+
+    if (rect.width === 0 || rect.height === 0) return;
+
     const dpr = window.devicePixelRatio || 1;
+    
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
-
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, rect.width, rect.height);
+    
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    const REAL_WIDTH_INCHES = 141.5;
+    const REAL_WIDTH_INCHES = 141.5
+  ;
     const pixelsPerInch = rect.width / REAL_WIDTH_INCHES; 
 
-    // 1. Draw your Pose circles
+    
     poses.forEach((pose) => {
       if (pose.x === null || pose.y === null || pose.heading === null) return;
       
@@ -47,17 +55,12 @@ export default function DrawPaths({ poses, paths }: PathDrawProps) {
       ctx.fill();
     });
 
-
     
-
-    
-    
-
-    paths.forEach((path)=>{
-      const spline = new bsplineClass(path,poses);
+    paths.forEach((path) => {
+      const spline = new bsplineClass(path, poses);
 
       const points: Vector[] = [];
-      const numPoints = 50; 
+      const numPoints = 100; 
 
       for (let i = 0; i <= numPoints; i++) {
           const t = i / numPoints; 
@@ -65,14 +68,12 @@ export default function DrawPaths({ poses, paths }: PathDrawProps) {
           points.push(point);
       }
 
-      //this was kinda ai-ed mb
       if (points.length > 0) {
         ctx.beginPath();
         ctx.strokeStyle = '#2563eb'; 
-        ctx.lineWidth = 3;           
+        ctx.lineWidth = 3;          
 
         points.forEach((pt, index) => {
-        
           const canvasX = centerX + (pt.x * pixelsPerInch);
           const canvasY = centerY - (pt.y * pixelsPerInch);
 
@@ -85,14 +86,33 @@ export default function DrawPaths({ poses, paths }: PathDrawProps) {
 
         ctx.stroke(); 
       }
-    })
-  }, [poses, paths]);
+    });
+    
+  
+  }, [poses, paths, imageLoaded]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      id="field-canvas"
-      className="absolute top-0 left-0 w-full h-full pointer-events-none"
-    />
+    
+    <div className="flex h-full w-full items-center justify-center overflow-hidden">
+
+      <div className="relative flex max-h-full max-w-full">
+        <img
+          ref={imageRef}
+          src="./images/decodeField.png" 
+         
+          className="block max-h-full max-w-full"
+          alt="Decode Field"
+          draggable="false"
+          id="field"
+          onLoad={() => setImageLoaded(true)}
+        />
+        <canvas
+          ref={canvasRef}
+          id="field-canvas"
+          className="absolute top-0 left-0 w-full h-full pointer-events-none"
+        />
+      </div>
+      
+    </div>
   );
 }

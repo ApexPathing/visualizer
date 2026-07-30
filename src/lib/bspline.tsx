@@ -1,3 +1,8 @@
+// THIS PROGRAM DOES NOT WORK, PLEASE REFER TO bsplineClass FOR THE PATH GEN. IM JUST KEEPING THIS IN FOR NOW
+
+
+
+
 import { useState } from "react";
 
 export function bspline(poses:Pose[]){

@@ -49,15 +49,6 @@ export default function Home() {
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel minSize="600px" defaultSize="800px">
-          <div className="flex h-full w-full items-center justify-center overflow-hidden">
-            <img
-              src="./images/decodeField.png" // TODO: Add a way to change the field image in settings
-              className="max-h-full max-w-full object-contain"
-              alt="Decode Field"
-              draggable="false"
-              id="field"
-            />
-          </div>
           <DrawPaths poses={poses} paths={paths}/>
         </ResizablePanel>
         <ResizableHandle withHandle />
