@@ -40,14 +40,16 @@ export default function DrawPaths({ poses, paths }: PathDrawProps) {
 
     const REAL_WIDTH_INCHES = 141.5
   ;
-    const pixelsPerInch = rect.width / REAL_WIDTH_INCHES; 
+    
+    const scaleX = rect.width / REAL_WIDTH_INCHES; 
+    const scaleY = rect.height / REAL_WIDTH_INCHES;
 
     
     poses.forEach((pose) => {
       if (pose.x === null || pose.y === null || pose.heading === null) return;
       
-      const posX = centerX + (pose.x * pixelsPerInch);
-      const posY = centerY - (pose.y * pixelsPerInch);
+      const posX = centerX + (pose.x * scaleX);
+      const posY = centerY - (pose.y * scaleY);
       
       ctx.beginPath();
       ctx.arc(posX, posY, 7, 0, 2 * Math.PI); 
@@ -69,13 +71,13 @@ export default function DrawPaths({ poses, paths }: PathDrawProps) {
       }
 
       if (points.length > 0) {
-        ctx.beginPath();
+        ctx.beginPath();  
         ctx.strokeStyle = '#2563eb'; 
         ctx.lineWidth = 3;          
 
         points.forEach((pt, index) => {
-          const canvasX = centerX + (pt.x * pixelsPerInch);
-          const canvasY = centerY - (pt.y * pixelsPerInch);
+          const canvasX = centerX + (pt.x * scaleX);
+          const canvasY = centerY - (pt.y * scaleY);
 
           if (index === 0) {
             ctx.moveTo(canvasX, canvasY);
@@ -106,6 +108,7 @@ export default function DrawPaths({ poses, paths }: PathDrawProps) {
           id="field"
           onLoad={() => setImageLoaded(true)}
         />
+        
         <canvas
           ref={canvasRef}
           id="field-canvas"
