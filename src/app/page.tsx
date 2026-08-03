@@ -49,7 +49,7 @@ export default function Home() {
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel minSize="600px" defaultSize="800px">
-          <DrawPaths poses={poses} paths={paths}/>
+          <DrawPaths poses={poses} paths={paths} updatePose={updatePose}/>
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel maxSize="1000px" minSize="350px" collapsible>
