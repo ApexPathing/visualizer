@@ -21,6 +21,7 @@ export default function PageNavbar() {
     }]
   )
 
+
   const updateVis = (id: number, updatedFields: Partial<Vis>) => {
     setVis((prev) =>
       prev.map((vis) =>
@@ -75,17 +76,17 @@ export default function PageNavbar() {
                     
                         {vises.name}
 
-                        <Button onClick={
-                          ()=>{
-                            deleteVis(vises.id);
-                          }
-                          
-                          } hidden = {vises.only} size={"sm"} className="bg-transparent hover:bg-transparent ">
-                          <Minus color={"#C00000"}/>
-                        </Button>
+                        
                     
                       </TabsTrigger>
-
+                      <Button onClick={
+                        ()=>{
+                          deleteVis(vises.id);
+                        }
+                        
+                        } hidden = {vises.only} size={"sm"} className="bg-transparent hover:bg-transparent ">
+                        <Minus color={"#C00000"}/>
+                      </Button>
                       
                     </div>
                   ))}

@@ -15,3 +15,10 @@ interface Vector{
   x:number //these two values are null to match the type of the poses, it will never actually be null
   y:number 
 }
+
+interface poseShape{
+  poseId:number
+  x:number
+  y:number
+  radius:number
+}
