@@ -12,6 +12,8 @@ interface PathDrawProps {
 export default function DrawPaths({ poses, paths,updatePose }: PathDrawProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+
+  
   
   const [imageLoaded, setImageLoaded] = useState(false);
   let current_shape_index:number;
@@ -30,6 +32,7 @@ export default function DrawPaths({ poses, paths,updatePose }: PathDrawProps) {
   
 
   useEffect(() => {
+   const localPoses = poses.map(pose => ({ ...pose }));
 
     //drag and drop handler
     let is_mouse_in_pose = (x:number,y:number,pose:poseShape)=>{
@@ -104,6 +107,12 @@ export default function DrawPaths({ poses, paths,updatePose }: PathDrawProps) {
 
         current_shape.x+=dx;
         current_shape.y+=dy;
+
+        let activePose = localPoses.find(p => p.id === current_shape.poseId);
+        if (activePose) {
+          activePose.x = (current_shape.x - centerX) / scaleX;
+          activePose.y = (centerY - current_shape.y) / scaleY;
+        }
         
         draw();
 
@@ -181,7 +190,7 @@ export default function DrawPaths({ poses, paths,updatePose }: PathDrawProps) {
 
       //paths drawing using bspline class
       paths.forEach((path) => {
-        const spline = new bsplineClass(path, poses);
+        const spline = new bsplineClass(path, localPoses);
 
         const points: Vector[] = [];
         const numPoints = 100; 
