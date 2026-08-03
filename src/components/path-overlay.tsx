@@ -63,7 +63,7 @@ export default function DrawPaths({ poses, paths,updatePose }: PathDrawProps) {
 
     let mouse_up = (event: MouseEvent) => {
       if(!isDragging){
-        return;
+        return
       }
       event.preventDefault();
       let current_shape = shapes[current_shape_index]
@@ -95,9 +95,10 @@ export default function DrawPaths({ poses, paths,updatePose }: PathDrawProps) {
 
     let mouse_move = (event:MouseEvent) =>{
 
+      let mouseX = event.clientX - rect.left;
+      let mouseY = event.clientY - rect.top;
       if(isDragging){
-        let mouseX = event.clientX - rect.left;
-        let mouseY = event.clientY - rect.top;
+        
 
 
         let dx = mouseX - startX;
