@@ -11,6 +11,7 @@ import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, 
 import { Sortable, SortableContent, SortableItem, SortableItemHandle, SortableOverlay } from "./ui/sortable";
 import { Switch } from "./ui/switch";
 import { Separator } from "./ui/separator";
+import { ColorPicker, ColorPickerArea, ColorPickerContent, ColorPickerEyeDropper,ColorPickerHueSlider, ColorPickerInput, ColorPickerSwatch, ColorPickerTrigger } from "./ui/color-picker";
 
 interface PathControlProps {
   poses: Pose[];
@@ -81,7 +82,26 @@ export default function PathControls ({
                             />
                           </div>
 
-                          <div className="flex items-center pointer-events-auto">
+                          <div className="flex items-center gap-1 pointer-events-auto">
+                            <ColorPicker defaultFormat="hex" value={path.color}
+                             onValueChange={(color)=>updatePath(path.id,{color:color})}>
+                              <ColorPickerTrigger asChild>
+                                <ColorPickerSwatch className="mb-px h-5 w-5"/>
+                              </ColorPickerTrigger>
+                              <ColorPickerContent>
+                                <ColorPickerArea />
+                                <div className="flex items-center gap-2">
+                                  <ColorPickerEyeDropper />
+                                  <div className="flex flex-1 flex-col gap-2">
+                                    <ColorPickerHueSlider />
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <ColorPickerInput withoutAlpha className="pointer-events-none"/>
+                                </div>
+                              </ColorPickerContent>
+                            </ColorPicker>
+                            
                             <Button
                               className="bg-transparent hover:bg-brand-primary/25"
                               onClick={() => deletePath(path.id)}

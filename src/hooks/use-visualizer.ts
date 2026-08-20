@@ -16,6 +16,7 @@ export const Poses = () => {
         radius: 0,
         arcPose: false,
         local: false,
+        color: '#008000'
       };
 
       return [...prevPoses, newPose];
@@ -51,6 +52,7 @@ export const Paths = () => {
         callbacks: [],
         quickBuild: false, // TODO: Replace these defaults with user defined settings
         holonomic: true,
+        color: "#2563eb"
       };
 
       return [...prevPaths, newPath];

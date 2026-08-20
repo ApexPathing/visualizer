@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Dispatch, SetStateAction, useEffect } from "react";
 import { Sortable, SortableContent, SortableItem, SortableItemHandle, SortableOverlay } from "./ui/sortable";
+import { ColorPicker, ColorPickerArea, ColorPickerContent, ColorPickerEyeDropper,ColorPickerHueSlider, ColorPickerInput, ColorPickerSwatch, ColorPickerTrigger } from "./ui/color-picker";
 
 interface PoseControlProps {
   deletePose: (id: number) => void;
@@ -22,6 +23,25 @@ export default function PoseControls ({
   poses, deletePose, addPose, updatePose, setPoses
 }: PoseControlProps) {
 
+  useEffect(()=>{
+    poses.forEach((pose)=>{
+
+      if(pose.x && pose.y){
+        if(pose.x>70.75){
+          updatePose(pose.id,{x:70.75})
+        }else if(pose.x< -70.75){
+          updatePose(pose.id,{x:-70.75})
+        }
+
+        if(pose.y>70.75){
+          updatePose(pose.id,{y:70.75})
+        }else if(pose.y< -70.75){
+          updatePose(pose.id,{y:-70.75})
+        }
+      }
+
+    })
+  },[poses])
   
   function checkForDuplicateName(e: React.FocusEvent<HTMLInputElement>, poseId: number) {
     if (e.target.value.trim() === "") { updatePose(poseId, { name: "" }); return; }
@@ -55,6 +75,7 @@ export default function PoseControls ({
       }
     }
   }
+
 
   return (
     <div className="flex h-full flex-col">
@@ -97,7 +118,27 @@ export default function PoseControls ({
                             />
                           </div>
 
-                          <div className="flex items-center pointer-events-auto">
+                          
+
+                          <div className="flex items-center gap-1 pointer-events-auto">
+                            <ColorPicker defaultFormat="hex" value={pose.color}
+                             onValueChange={(color)=>updatePose(pose.id,{color:color})}>
+                              <ColorPickerTrigger asChild>
+                                <ColorPickerSwatch className="mb-px h-5 w-5"/>
+                              </ColorPickerTrigger>
+                              <ColorPickerContent>
+                                <ColorPickerArea />
+                                <div className="flex items-center gap-2">
+                                  <ColorPickerEyeDropper />
+                                  <div className="flex flex-1 flex-col gap-2">
+                                    <ColorPickerHueSlider />
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <ColorPickerInput withoutAlpha className="pointer-events-none"/>
+                                </div>
+                              </ColorPickerContent>
+                            </ColorPicker>
                             <Button
                               className="bg-transparent hover:bg-brand-primary/25"
                               onClick={() => deletePose(pose.id)}
