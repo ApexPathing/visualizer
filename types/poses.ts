@@ -7,6 +7,7 @@ interface Pose {
   radius: number | null
   arcPose: boolean
   local: boolean
+  color:string
 }
 
 //this interface is for calculating the bspline, 
@@ -21,4 +22,5 @@ interface poseShape{
   x:number
   y:number
   radius:number
+  color:string
 }

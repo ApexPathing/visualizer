@@ -32,7 +32,11 @@ export default function DrawPaths({ poses, paths,updatePose }: PathDrawProps) {
   
 
   useEffect(() => {
-   const localPoses = poses.map(pose => ({ ...pose }));
+
+  
+    const localPoses = poses.map(pose => ({ ...pose }));
+
+    
 
     //drag and drop handler
     let is_mouse_in_pose = (x:number,y:number,pose:poseShape)=>{
@@ -175,7 +179,7 @@ export default function DrawPaths({ poses, paths,updatePose }: PathDrawProps) {
       const posX = centerX + (pose.x * scaleX);
       const posY = centerY - (pose.y * scaleY);
       
-      shapes.push({poseId:pose.id,x:posX, y:posY, radius:7})
+      shapes.push({poseId:pose.id,x:posX, y:posY, radius:7,color:pose.color})
     });
 
     let draw = ()=>{
@@ -184,7 +188,7 @@ export default function DrawPaths({ poses, paths,updatePose }: PathDrawProps) {
       shapes.forEach((shape)=>{
         ctx.beginPath();
         ctx.arc(shape.x, shape.y, shape.radius, 0, 2 * Math.PI); 
-        ctx.fillStyle = 'green';
+        ctx.fillStyle = shape.color;
         ctx.fill();
       })  
 
@@ -194,7 +198,7 @@ export default function DrawPaths({ poses, paths,updatePose }: PathDrawProps) {
         const spline = new bsplineClass(path, localPoses);
 
         const points: Vector[] = [];
-        const numPoints = 100; 
+        const numPoints = path.controlPoints.length *200; 
 
         for (let i = 0; i <= numPoints; i++) {
             const t = i / numPoints; 
@@ -204,7 +208,7 @@ export default function DrawPaths({ poses, paths,updatePose }: PathDrawProps) {
 
         if (points.length > 0) {
           ctx.beginPath();  
-          ctx.strokeStyle = '#2563eb'; 
+          ctx.strokeStyle = path.color; 
           ctx.lineWidth = 3;          
 
           points.forEach((pt, index) => {

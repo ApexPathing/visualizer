@@ -18,4 +18,5 @@ interface Path {
   callbacks: Callback[]
   quickBuild: boolean
   holonomic: boolean
+  color: string
 }
