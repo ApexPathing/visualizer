@@ -12,18 +12,18 @@ import { Minus, Plus } from "lucide-react";
 
 export default function PageNavbar() {
 
-  //there was some error with date.now for this, so its using a counter instead
-  let counter = 0;
+  
+  
 
   const [vis,setVis] = useState<Vis[]>(
 
     [{
     name: "Visualizer 1",
-    id: counter,
+    id: 1,
     only:true,
     }]
   )
-  counter+=1
+  
 
 
   const updateVis = (id: number, updatedFields: Partial<Vis>) => {
@@ -41,13 +41,12 @@ export default function PageNavbar() {
       const nextNumber = prevVis.length + 1;
 
 
-
       const newVis: Vis = {
-        id: counter,
+        id: Date.now(),
         name: `Visualizer ${nextNumber}`,
         only: false
       };
-      counter+=1
+    
 
       return [...prevVis, newVis];
     });

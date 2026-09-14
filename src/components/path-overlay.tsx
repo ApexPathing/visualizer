@@ -195,7 +195,7 @@ export default function DrawPaths({ poses, paths,updatePose }: PathDrawProps) {
 
       //paths drawing using bspline class
       paths.forEach((path) => {
-        const spline = new bsplineClass(path, localPoses);
+        const spline = new bsplineClass(path, localPoses,updatePose);
 
         const points: Vector[] = [];
         const numPoints = path.controlPoints.length *200; 
@@ -240,14 +240,16 @@ export default function DrawPaths({ poses, paths,updatePose }: PathDrawProps) {
 
   return (
     
-    <div className="flex h-full w-full items-center justify-center overflow-hidden">
+    <div className="flex h-full w-full items-center justify-center overflow-hidden min-h-0 min-w-0">
 
-      <div className="relative flex max-h-full max-w-full">
+      <div className="relative flex max-h-full max-w-full min-h-0 min-w-0 items-center justify-center"
+      style={{ maxWidth: '735px', maxHeight: '735px' }}
+        >
         <img
           ref={imageRef}
           src="./images/decodeField.png" 
          
-          className="block max-h-full max-w-full select-none pointer-events-none"
+          className="block aspect-square max-h-full max-w-full w-auto h-auto object-contain select-none pointer-events-none"
           alt="Decode Field"
           draggable="false"
           id="field"
@@ -258,7 +260,7 @@ export default function DrawPaths({ poses, paths,updatePose }: PathDrawProps) {
         <canvas
           ref={canvasRef}
           id="field-canvas"
-          className="absolute top-0 left-0 w-full h-full "
+          className="absolute inset-0 w-full h-full "
         />
       </div>
       

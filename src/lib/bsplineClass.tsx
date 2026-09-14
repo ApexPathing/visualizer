@@ -11,7 +11,7 @@ export class bsplineClass{
                 [1.0 / 6.0, 4.0 / 6.0, 1.0 / 6.0, 0.0]
                 ]
 
-    constructor(path:Path,fullPoses:Pose[]){
+    constructor(path:Path,fullPoses:Pose[],updatePose: (id: number, updatedFields: Partial<Pose>) => void){
 
         let poses:Pose[] = []
         path.controlPoints.forEach((cPoint)=>{
@@ -43,7 +43,7 @@ export class bsplineClass{
         //convert all poses to vectors
         
         let poseVector:Vector[] = []
-        poses.forEach((pose) => {
+        for (const pose of poses){
             
             const temp:Vector = {
                 x:pose.x ?? 0, // if pose.x is null, give a value of 0. Our filter above will automatically 
@@ -51,9 +51,65 @@ export class bsplineClass{
                 // pure number types instead of  number | null
                 y:pose.y ?? 0
             };
+
+            //check if arcPose
+
+            if (pose.arcPose){
+
+                let r = pose.radius ?? 0
+                
+                //if endpoints
+                const index = poses.findIndex(p => p.id === pose.id)
+                if(index != 0 && index != (poses.length -1)){
+
+
+                    const leftVector:Vector = {
+                        x:poses[index-1].x ?? 0,
+                        y:poses[index-1].y ?? 0
+                    }
+
+                    const rightVector:Vector = {
+                        x:poses[index+1].x ?? 0,
+                        y:poses[index+1].y ?? 0
+                    }
+
+                    const leftDist = Math.sqrt(
+                        (leftVector.x - temp.x)**2
+                        +
+                        (leftVector.y - temp.y)**2
+                    )
+
+                    const rightDist = Math.sqrt(
+                        (rightVector.x - temp.x)**2
+                        +
+                        (rightVector.y - temp.y)**2
+                    )
+
+                    if(rightDist < r || leftDist < r){
+                        r = Math.min(rightDist,leftDist)
+                    }
+
+                    const leftArcPose = {
+                        x: temp.x + (((leftVector.x - temp.x)/leftDist) * r),
+                        y: temp.y + (((leftVector.y - temp.y)/leftDist) * r)
+                    }
+                
+                    const rightArcPose = {
+                        x: temp.x + (((rightVector.x - temp.x)/rightDist) * r),
+                        y: temp.y + (((rightVector.y - temp.y)/rightDist) * r)
+                    }
+
+                    poseVector.push(leftArcPose,temp,rightArcPose)
+
+                    
+                    continue
+
+
+                }
+            }
     
             poseVector.push(temp)
-        });
+        }
 
         //assign posevectors to our object
     
@@ -68,8 +124,8 @@ export class bsplineClass{
 
         let ghostPoints:Vector[] = []// make a list for the ghost points
     
-        const neg1 = poses.length-1
-        const neg2 = poses.length-2
+        const neg1 = poseVector.length-1
+        const neg2 = poseVector.length-2
     
         //will give error cus the value "might be null" even though we filtered for it already, so just add an if statement
         if((poseVector[0].x!=null && poseVector[1].x!=null && poseVector[neg1].x!=null && poseVector[neg2].x!=null 
@@ -135,6 +191,7 @@ export class bsplineClass{
     }
 
 
+    
     evaluate(t:number){
         if (!this.cx || this.cx.length === 0) return { x: 0, y: 0 };
 
@@ -161,6 +218,7 @@ export class bsplineClass{
     }
 
 }
+
 
 function multiplyMatrices(matrix:number[][], window:number[]){
 
