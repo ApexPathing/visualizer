@@ -56,7 +56,7 @@ export class bsplineClass{
 
             if (pose.arcPose){
 
-                const r = pose.radius ?? 0
+                let r = pose.radius ?? 0
                 
                 //if endpoints
                 const index = poses.findIndex(p => p.id === pose.id)
@@ -85,6 +85,9 @@ export class bsplineClass{
                         (rightVector.y - temp.y)**2
                     )
 
+                    if(rightDist < r || leftDist < r){
+                        r = Math.min(rightDist,leftDist)
+                    }
 
                     const leftArcPose = {
                         x: temp.x + (((leftVector.x - temp.x)/leftDist) * r),
@@ -97,8 +100,10 @@ export class bsplineClass{
                     }
 
                     poseVector.push(leftArcPose,temp,rightArcPose)
-                    continue
+
                     
+                    continue
+
 
                 }
             }
@@ -186,6 +191,7 @@ export class bsplineClass{
     }
 
 
+    
     evaluate(t:number){
         if (!this.cx || this.cx.length === 0) return { x: 0, y: 0 };
 
@@ -212,6 +218,7 @@ export class bsplineClass{
     }
 
 }
+
 
 function multiplyMatrices(matrix:number[][], window:number[]){
 

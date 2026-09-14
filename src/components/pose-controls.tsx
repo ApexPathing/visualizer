@@ -22,6 +22,7 @@ interface PoseControlProps {
 export default function PoseControls ({
   poses, deletePose, addPose, updatePose, setPoses
 }: PoseControlProps) {
+  
 
   useEffect(()=>{
     poses.forEach((pose)=>{
@@ -149,7 +150,7 @@ export default function PoseControls ({
                         </div>
 
                         <AccordionTrigger
-                          className="absolute inset-0 z-0 flex h-full w-full items-center justify-between p-0 pr-2 border-none hover:no-underline text-zinc-400"
+                          className="absolute inset-0 z-0 flex h-full w-full items-center justify-between p-0 pr-4 border-none hover:no-underline text-zinc-400"
                         >
                           <span className="sr-only">Toggle Pose</span>
                         </AccordionTrigger>
@@ -157,6 +158,7 @@ export default function PoseControls ({
 
                       <AccordionContent className="pt-2 pb-4">
                         <div className="flex flex-col gap-4 ml-4">
+                          
                           <div className="grid grid-cols-2 gap-2">
                             <Field>
                               <FieldLabel htmlFor={`x-${pose.id}`} className="text-white text-xs">
@@ -169,7 +171,7 @@ export default function PoseControls ({
                                   min={-70.75}
                                   max={70.75}
                                   className="w-20 transition-colors focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
-                                  defaultValue={pose.x ?? 0}
+                                  value={pose.x?.toFixed(5) ?? 0}
                                   onChange={(e) => handleInputChange(e, pose.id, 'x', -70.75, 70.75)}
                                   onBlur={(e) => handleInputBlur(e, pose.id, 'x', -70.75, 70.75)}
                                 />
@@ -185,7 +187,7 @@ export default function PoseControls ({
                                 min={-70.75}
                                 max={70.75}
                                 className="w-20 transition-colors focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
-                                defaultValue={pose.y ?? 0}
+                                value={pose.y?.toFixed(5) ?? 0}
                                 onChange={(e) => handleInputChange(e, pose.id, 'y', -70.75, 70.75)}
                                 onBlur={(e) => handleInputBlur(e, pose.id, 'y', -70.75, 70.75)}
                               />

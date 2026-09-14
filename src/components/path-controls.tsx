@@ -112,7 +112,7 @@ export default function PathControls ({
                         </div>
 
                         <AccordionTrigger
-                          className="absolute inset-0 z-0 flex h-full w-full items-center justify-between p-0 pr-2 border-none hover:no-underline text-zinc-400"
+                          className="absolute inset-0 z-0 flex h-full w-full items-center justify-between p-0 pr-4 border-none hover:no-underline text-zinc-400"
                         >
                           <span className="sr-only">Toggle Path</span>
                         </AccordionTrigger>
