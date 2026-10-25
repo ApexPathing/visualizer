@@ -39,7 +39,7 @@ export default function PageNavbar() {
   
   
   
-  const [currentField, setCurrentField] = useState("Decode(2025-2026)")
+  const [currentField, setCurrentField] = useState("Biobuzz (2026-2027)")
 
   const [vis,setVis] = useState<Vis[]>(
 
@@ -243,7 +243,7 @@ export default function PageNavbar() {
                   </div>
               </div>
               <div>
-                <h1>File:</h1>
+                <h1>Field:</h1>
                 
                 <Combobox  items={fields} value={currentField}  onValueChange={(value)=>{
 
@@ -254,6 +254,8 @@ export default function PageNavbar() {
                     if(value == "Into The Deep(2024-2025)") setImage("./images/intoTheDeepField.png")
                     if(value == "Biobuzz(2026-2027)") setImage("./images/biobuzzField.png")
                     else if(value == "Import your own") setImportHidden(false)
+
+                      setReRenderCanvas(!reRenderCanvas)
 
                  }}
                  >
@@ -275,7 +277,7 @@ export default function PageNavbar() {
                   const target = event.target as HTMLInputElement
                   const file = target.files?.[0]
 
-                  if(file){
+                  if(file){// TODO change aspect ratio so it becomes a square
                     const url = URL.createObjectURL(file);
                     setImage(url)
                     setReRenderCanvas(!reRenderCanvas)

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { bsplineClass } from '@/lib/bsplineClass';
 import { Settings } from "@/hooks/use-visualizer";
 
@@ -9,9 +9,11 @@ interface PathDrawProps {
   paths: Path[];
   updatePose: (id: number, updatedFields: Partial<Pose>) => void;
   reRender: boolean 
+  currentShapeIndex:number
+  setCurrentShapeIndex: Dispatch<SetStateAction<number>>
 }
 
-export default function DrawPaths({ poses, paths,updatePose,reRender }: PathDrawProps) {
+export default function DrawPaths({ poses, paths,updatePose,reRender, currentShapeIndex,setCurrentShapeIndex}: PathDrawProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
 
@@ -23,7 +25,12 @@ export default function DrawPaths({ poses, paths,updatePose,reRender }: PathDraw
 
   
   const [imageLoaded, setImageLoaded] = useState(false);
-  let current_shape_index:number;
+  const currentShapeIndexRef = useRef(currentShapeIndex);
+
+
+  useEffect(() => {
+    currentShapeIndexRef.current = currentShapeIndex;
+  }, [currentShapeIndex]);
 
   const shapes:poseShape[] = []
   let isDragging = false;
@@ -63,7 +70,7 @@ export default function DrawPaths({ poses, paths,updatePose,reRender }: PathDraw
 
         if(is_mouse_in_pose(startX,startY,shape)){
           isDragging = true;
-          current_shape_index = index;
+          setCurrentShapeIndex(index);
           
         }
 
@@ -73,18 +80,18 @@ export default function DrawPaths({ poses, paths,updatePose,reRender }: PathDraw
     };
 
     let mouse_up = (event: MouseEvent) => {
-      if(!isDragging){
+      if(isDragging){
+        event.preventDefault();
+        let current_shape = shapes[currentShapeIndexRef.current]
+        const id = current_shape.poseId;
+        updatePose(id,{
+          x:(current_shape.x - centerX) / scaleX,
+          y:(centerY - current_shape.y) / scaleY
+        })
+        isDragging = false;
+      }else {
         return
       }
-      event.preventDefault();
-      let current_shape = shapes[current_shape_index]
-      const id = current_shape.poseId;
-      updatePose(id,{
-        x:(current_shape.x - centerX) / scaleX,
-        y:(centerY - current_shape.y) / scaleY
-      })
-
-      isDragging = false;
     };
 
 
@@ -94,7 +101,7 @@ export default function DrawPaths({ poses, paths,updatePose,reRender }: PathDraw
       }
       event.preventDefault();
 
-      let current_shape = shapes[current_shape_index]
+      let current_shape = shapes[currentShapeIndexRef.current]
       const id = current_shape.poseId;
       updatePose(id,{
         x:(current_shape.x - centerX) / scaleX,
@@ -115,16 +122,11 @@ export default function DrawPaths({ poses, paths,updatePose,reRender }: PathDraw
         let dx = mouseX - startX;
         let dy = mouseY - startY;
 
-        let current_shape = shapes[current_shape_index];
+        let current_shape = shapes[currentShapeIndexRef.current];
 
         current_shape.x+=dx;
         current_shape.y+=dy;
 
-        let activePose = localPoses.find(p => p.id === current_shape.poseId);
-        if (activePose) {
-          activePose.x = (current_shape.x - centerX) / scaleX;
-          activePose.y = (centerY - current_shape.y) / scaleY;
-        }
         
         draw();
 
@@ -137,6 +139,7 @@ export default function DrawPaths({ poses, paths,updatePose,reRender }: PathDraw
         return
       }
     }
+    
 
 
 
@@ -163,6 +166,7 @@ export default function DrawPaths({ poses, paths,updatePose,reRender }: PathDraw
     canvas.onmouseup= mouse_up;
     canvas.onmouseout = mouse_out;
     canvas.onmousemove = mouse_move;
+    
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -198,8 +202,9 @@ export default function DrawPaths({ poses, paths,updatePose,reRender }: PathDraw
         ctx.arc(shape.x, shape.y, shape.radius, 0, 2 * Math.PI); 
         ctx.fillStyle = shape.color;
         ctx.fill();
-      })  
 
+        
+      }) 
 
       //paths drawing using bspline class
       paths.forEach((path) => {
@@ -233,7 +238,50 @@ export default function DrawPaths({ poses, paths,updatePose,reRender }: PathDraw
           ctx.stroke(); 
         }
       });
+    
 
+      shapes.forEach((shape)=>{
+        if(currentShapeIndexRef.current == shapes.indexOf(shape)){
+          ctx.beginPath();
+          let transX = 10,transY = 10;
+          let activePose = localPoses.find(p => p.id === shape.poseId);
+            if (activePose) {
+              activePose.x = (shape.x - centerX) / scaleX;
+              activePose.y = (centerY - shape.y) / scaleY;
+              if(activePose.x <= 0 && activePose.y >= 0) transX = 10, transY = 10;
+              if(activePose.x >= 0 && activePose.y >= 0) transX = -10 - 75, transY = 10;
+              if(activePose.x <= 0 && activePose.y <= 0) transX = 10, transY = -10 - 25;
+              if(activePose.x >= 0 && activePose.y <= 0) transX = -10 - 75, transY = -10 - 25;
+            }
+          ctx.roundRect(shape.x + transX ,shape.y + transY,75,25,10);
+          ctx.fillStyle = "black";
+          ctx.fill();
+        }
+      })
+
+      shapes.forEach((shape)=>{
+
+        if(currentShapeIndexRef.current == shapes.indexOf(shape)){
+          ctx.beginPath();
+          let activePose = localPoses.find(p => p.id === shape.poseId);
+          ctx.fillStyle = "white";
+          if (activePose) {
+            activePose.x = (shape.x - centerX) / scaleX;
+            activePose.y = (centerY - shape.y) / scaleY;
+
+            let transX = 15,transY = 25;
+            if(activePose.x <= 0 && activePose.y >= 0) transX = 15, transY = 25;
+            if(activePose.x >= 0 && activePose.y >= 0) transX = -15 - 63, transY = 25;
+            if(activePose.x <= 0 && activePose.y <= 0) transX = 15 - 2, transY = -25 + 5;
+            if(activePose.x >= 0 && activePose.y <= 0) transX = -15 - 65, transY = -25 + 5;
+            
+
+            ctx.fillText("(" + activePose.x.toFixed(2) + "," + activePose.y.toFixed(2) + ")",shape.x + transX , shape.y + transY);
+          } 
+          
+          ctx.fill();
+        }
+      })
 
     }
     

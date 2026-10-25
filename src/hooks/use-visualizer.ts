@@ -47,7 +47,7 @@ export const Paths = () => {
   const addPath = () => {
     setPaths((prevPaths) => {
       const nextNumber = prevPaths.length + 1;
-
+    
       const newPath: Path = {
         id: Date.now(),
         name: `path${nextNumber}`,
@@ -56,7 +56,7 @@ export const Paths = () => {
         holonomic: true,
         color: "#2563eb"
       };
-
+      
       return [...prevPaths, newPath];
     });
   };
@@ -129,7 +129,8 @@ export const Paths = () => {
     deleteControlPoint,
     addCallback,
     updateCallback,
-    deleteCallback
+    deleteCallback,
+    
   }
 }
 
@@ -143,7 +144,7 @@ export const Settings = create<Settings>()((set) => ({
   setMeasureSys: (updated) => set({measureSys:updated}),
   buildType: "default",
   setBuildType:(updated) => set({buildType:updated}),
-  image: "./images/decodeField.png",
+  image: "./images/biobuzzField.png",
   setImage: (updated) =>set({image: updated})
 }))
 
@@ -157,3 +158,4 @@ export const ReRender = () => {
     setReRenderCanvas
   }
 }
+

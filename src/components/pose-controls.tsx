@@ -17,10 +17,11 @@ interface PoseControlProps {
   addPose: () => void;
   updatePose: (id: number, updatedFields: Partial<Pose>) => void;
   setPoses: Dispatch<SetStateAction<Pose[]>>;
+  currentShapeIndex:number
 }
 
 export default function PoseControls ({
-  poses, deletePose, addPose, updatePose, setPoses
+  poses, deletePose, addPose, updatePose, setPoses,currentShapeIndex
 }: PoseControlProps) {
   
 
@@ -94,7 +95,7 @@ export default function PoseControls ({
             {poses.map((pose) => (
               <SortableItem key={pose.id} value={pose.id} className="hover:transparent" asChild>
                 <div className="p-1">
-                  <Accordion type="single" collapsible className="w-full">
+                  <Accordion type="single" collapsible className={`w-full ${currentShapeIndex == poses.indexOf(pose) && "bg-red-900"} rounded-lg`}> 
                     <AccordionItem value={`${pose.id}`} className="border-none">
                       <div className="relative flex items-center w-full min-h-10 py-1">
                         <div className="relative z-10 flex flex-1 items-center justify-between gap-4 pointer-events-none pr-8">
@@ -156,7 +157,7 @@ export default function PoseControls ({
                         </AccordionTrigger>
                       </div>
 
-                      <AccordionContent className="pt-2 pb-4">
+                      <AccordionContent className="pt-2 pb-4 pr-4">
                         <div className="flex flex-col gap-4 ml-4">
                           
                           <div className="grid grid-cols-2 gap-2">

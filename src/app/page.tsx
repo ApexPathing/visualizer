@@ -5,7 +5,7 @@ import PathControls from "@/components/path-controls";
 import { Paths, Poses, ReRender, Settings } from "@/hooks/use-visualizer";
 import PoseControls from "@/components/pose-controls";
 import DrawPaths from "@/components/path-overlay";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 
 export default function Home() {
@@ -40,6 +40,8 @@ export default function Home() {
     reRenderCanvas,
     setReRenderCanvas
   } = ReRender();
+  
+  const [currentShapeIndex,setCurrentShapeIndex] = useState(0);
  
 
   
@@ -59,12 +61,20 @@ export default function Home() {
               addPose={addPose}
               updatePose={updatePose}
               setPoses={setPoses}
+              currentShapeIndex={currentShapeIndex}
             />
           </span>
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel minSize="600px" defaultSize="800px">
-          <DrawPaths poses={poses} paths={paths} updatePose={updatePose} reRender = {reRenderCanvas}/>
+          <DrawPaths 
+          poses={poses} 
+          paths={paths}
+          updatePose={updatePose} 
+          reRender = {reRenderCanvas} 
+          currentShapeIndex={currentShapeIndex}
+          setCurrentShapeIndex={setCurrentShapeIndex}
+          />
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel maxSize="1000px" minSize="350px" collapsible>
