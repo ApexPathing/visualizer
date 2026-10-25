@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { create } from 'zustand'
 
 export const Poses = () => {
   const [poses, setPoses] = useState<Pose[]>([]);
@@ -38,6 +39,8 @@ export const Poses = () => {
   return { poses, deletePose, addPose, updatePose, setPoses };
 }
 
+
+
 export const Paths = () => {
   const [paths, setPaths] = useState<Path[]>([]);
 
@@ -50,7 +53,6 @@ export const Paths = () => {
         name: `path${nextNumber}`,
         controlPoints: [],
         callbacks: [],
-        quickBuild: false, // TODO: Replace these defaults with user defined settings
         holonomic: true,
         color: "#2563eb"
       };
@@ -128,5 +130,30 @@ export const Paths = () => {
     addCallback,
     updateCallback,
     deleteCallback
+  }
+}
+
+
+
+
+export const Settings = create<Settings>()((set) => ({
+  dtType: "holonomic",
+  setDtType: (updated) => set({dtType:updated}),
+  measureSys: "in",
+  setMeasureSys: (updated) => set({measureSys:updated}),
+  buildType: "default",
+  setBuildType:(updated) => set({buildType:updated}),
+  image: "./images/decodeField.png",
+  setImage: (updated) =>set({image: updated})
+}))
+
+export const ReRender = () => {
+
+  //this will work by sending a state change from the page.tsx to the path-overlay ot re-render it, hopefully fixing the resize problem
+  const [reRenderCanvas,setReRenderCanvas] = useState<boolean>(true)
+
+  return{
+    reRenderCanvas,
+    setReRenderCanvas
   }
 }

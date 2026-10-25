@@ -2,18 +2,25 @@
 
 import { useEffect, useRef, useState } from "react";
 import { bsplineClass } from '@/lib/bsplineClass';
+import { Settings } from "@/hooks/use-visualizer";
 
 interface PathDrawProps {
   poses: Pose[];
   paths: Path[];
   updatePose: (id: number, updatedFields: Partial<Pose>) => void;
+  reRender: boolean 
 }
 
-export default function DrawPaths({ poses, paths,updatePose }: PathDrawProps) {
+export default function DrawPaths({ poses, paths,updatePose,reRender }: PathDrawProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
 
+  const{
+    image
+  } = Settings();
   
+
+
   
   const [imageLoaded, setImageLoaded] = useState(false);
   let current_shape_index:number;
@@ -138,6 +145,7 @@ export default function DrawPaths({ poses, paths,updatePose }: PathDrawProps) {
     //canvas init
     const canvas = canvasRef.current;
     const img = imageRef.current;
+    
     if (!canvas || !img) return;
 
     const rect = img.getBoundingClientRect();
@@ -236,7 +244,8 @@ export default function DrawPaths({ poses, paths,updatePose }: PathDrawProps) {
    
     
   
-  }, [poses, paths, imageLoaded]);
+  }, [poses, paths, imageLoaded,reRender]);
+
 
   return (
     
@@ -247,10 +256,9 @@ export default function DrawPaths({ poses, paths,updatePose }: PathDrawProps) {
         >
         <img
           ref={imageRef}
-          src="./images/decodeField.png" 
-         
+          src={image}
           className="block aspect-square max-h-full max-w-full w-auto h-auto object-contain select-none pointer-events-none"
-          alt="Decode Field"
+          alt="Field"
           draggable="false"
           id="field"
           unselectable = "on"

@@ -2,9 +2,10 @@
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 
 import PathControls from "@/components/path-controls";
-import { Paths, Poses } from "@/hooks/use-visualizer";
+import { Paths, Poses, ReRender, Settings } from "@/hooks/use-visualizer";
 import PoseControls from "@/components/pose-controls";
 import DrawPaths from "@/components/path-overlay";
+import { Dispatch, SetStateAction } from "react";
 
 
 export default function Home() {
@@ -30,11 +31,25 @@ export default function Home() {
     deleteCallback
   } = Paths();
 
+
+  const {
+    dtType
+  } = Settings();
+
+  const {
+    reRenderCanvas,
+    setReRenderCanvas
+  } = ReRender();
+ 
+
+  
+
   return (
     <div className="flex flex-row h-[calc(100vh-104px)]">
       <ResizablePanelGroup
         orientation="horizontal"
         className="min-h-full max-w-md rounded-lg border min-w-full"
+        onLayoutChanged={()=>setReRenderCanvas(!reRenderCanvas)}
       >
         <ResizablePanel maxSize="1000px" minSize="350px" collapsible>
           <span>
@@ -49,7 +64,7 @@ export default function Home() {
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel minSize="600px" defaultSize="800px">
-          <DrawPaths poses={poses} paths={paths} updatePose={updatePose}/>
+          <DrawPaths poses={poses} paths={paths} updatePose={updatePose} reRender = {reRenderCanvas}/>
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel maxSize="1000px" minSize="350px" collapsible>
@@ -68,6 +83,7 @@ export default function Home() {
                 addCallback={addCallback}
                 updateCallback={updateCallback}
                 deleteCallback={deleteCallback}
+                dtType = {dtType}
               />
             </span>
           </div>
