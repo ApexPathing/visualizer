@@ -16,7 +16,6 @@ interface Path {
   name: string
   controlPoints: ControlPoint[]
   callbacks: Callback[]
-  quickBuild: boolean
   holonomic: boolean
   color: string
 }

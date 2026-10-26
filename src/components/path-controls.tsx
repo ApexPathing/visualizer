@@ -3,7 +3,7 @@
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button";
 
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { CircleMinus, CirclePlus, GripVertical, Plus } from "lucide-react";
 import { Input } from "./ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
@@ -12,6 +12,7 @@ import { Sortable, SortableContent, SortableItem, SortableItemHandle, SortableOv
 import { Switch } from "./ui/switch";
 import { Separator } from "./ui/separator";
 import { ColorPicker, ColorPickerArea, ColorPickerContent, ColorPickerEyeDropper,ColorPickerHueSlider, ColorPickerInput, ColorPickerSwatch, ColorPickerTrigger } from "./ui/color-picker";
+import { StoreApi, UseBoundStore } from "zustand";
 
 interface PathControlProps {
   poses: Pose[];
@@ -26,6 +27,7 @@ interface PathControlProps {
   addCallback: (pathId: number, currentCallbacks?: Callback[]) => void;
   updateCallback: (pathId: number, currentCallbacks: Callback[], callbackId: number, updatedFields: Partial<Callback>) => void;
   deleteCallback: (pathId: number, currentCallbacks: Callback[], callbackId: number) => void;
+  dtType: "holonomic" | "tank" | "butterfly"
 }
 
 export default function PathControls ({
@@ -40,8 +42,14 @@ export default function PathControls ({
   updateControlPoint,
   addCallback,
   updateCallback,
-  deleteCallback
+  deleteCallback,
+  dtType
 }: PathControlProps) {
+
+
+  
+ 
+
   return (
     <div className="flex h-full flex-col">
       <Button className="flex mt-4 mx-4" onClick={addPath}>
@@ -120,24 +128,11 @@ export default function PathControls ({
 
                       <AccordionContent className="pt-2 h-full">
                         <div className="flex flex-col ml-5">
-                          <div className="flex flex-1 w-full gap-2 my-1"> 
-                            <button // TODO: Add a default build method in the settings and set it in use-visualizer.ts
-                              type="button"
-                              onClick={() => updatePath(path.id, { quickBuild: false })}
-                              className={`flex-1 rounded-md justify-center text-center text-xs h-7 font-semibold transition-colors ${!path.quickBuild ? "bg-brand-primary" : "bg-zinc-800 hover:bg-zinc-700"}`}
-                            >
-                              Default Build
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => updatePath(path.id, { quickBuild: true })}
-                              className={`flex-1 rounded-md justify-center text-center text-xs h-7 font-semibold transition-colors ${path.quickBuild ? "bg-brand-primary" : "bg-zinc-800 hover:bg-zinc-700"}`}
-                            >
-                              Quick Build
-                            </button>
-                          </div>
-                          <div className="flex flex-1 w-full gap-2 my-1">
-                            <button // TODO: Add a setting for drivetrain type (holonomic, tank, butterfly) and only show this option for butterfly
+                          <div 
+                          className="flex flex-1 w-full gap-2 my-1"
+                          hidden = {dtType != "butterfly"} 
+                          >
+                            <button 
                               type="button"
                               onClick={() => updatePath(path.id, { holonomic: true })}
                               className={`flex-1 rounded-md justify-center text-center text-xs h-7 font-semibold transition-colors ${path.holonomic ? "bg-brand-primary" : "bg-zinc-800 hover:bg-zinc-700"}`}

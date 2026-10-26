@@ -17,6 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Apex Pathing Visualizer",
   description: "Path generation, visualization, and programming tool for Apex Pathing",
+  
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
