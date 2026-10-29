@@ -42,6 +42,7 @@ export default function Home() {
   } = ReRender();
   
   const [currentShapeIndex,setCurrentShapeIndex] = useState(0);
+  const [currentPathIndex,setCurrentPathIndex] = useState(0);
  
 
   
@@ -62,6 +63,7 @@ export default function Home() {
               updatePose={updatePose}
               setPoses={setPoses}
               currentShapeIndex={currentShapeIndex}
+              setCurrentShapeIndex = {setCurrentShapeIndex}
             />
           </span>
         </ResizablePanel>
@@ -74,6 +76,9 @@ export default function Home() {
           reRender = {reRenderCanvas} 
           currentShapeIndex={currentShapeIndex}
           setCurrentShapeIndex={setCurrentShapeIndex}
+          currentPathIndex={currentPathIndex}
+          setCurrentPathIndex={setCurrentPathIndex}
+          deletePose={deletePose}
           />
         </ResizablePanel>
         <ResizableHandle withHandle />
@@ -94,6 +99,8 @@ export default function Home() {
                 updateCallback={updateCallback}
                 deleteCallback={deleteCallback}
                 dtType = {dtType}
+                currentPathIndex={currentPathIndex}
+                setCurrentPathIndex={setCurrentPathIndex}
               />
             </span>
           </div>

@@ -11,7 +11,7 @@ export class bsplineClass{
                 [1.0 / 6.0, 4.0 / 6.0, 1.0 / 6.0, 0.0]
                 ]
 
-    constructor(path:Path,fullPoses:Pose[],updatePose: (id: number, updatedFields: Partial<Pose>) => void){
+    constructor(path:Path,fullPoses:Pose[]){
 
         let poses:Pose[] = []
         path.controlPoints.forEach((cPoint)=>{

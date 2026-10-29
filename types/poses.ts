@@ -8,12 +8,14 @@ interface Pose {
   arcPose: boolean
   local: boolean
   color:string
+  open:string
+  
 }
 
 //this interface is for calculating the bspline, 
-// as it doesn't need the other things for poses which will just be plugged into the b spline
+// so it doesn't need the other things for poses which will just be plugged into the b spline
 interface Vector{
-  x:number //these two values are null to match the type of the poses, it will never actually be null
+  x:number 
   y:number 
 }
 

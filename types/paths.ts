@@ -11,6 +11,15 @@ interface ControlPoint {
   pathId: number | null // ID of the path this control point is associated with
 }
 
+
+interface Interpolation{
+  interpolationType: "linear" | "piecewise" | "constant" | "tangential" // name of the type
+   // number is for constant, [number,number] is for linear, boolean is for reversed tangential
+   // Interpolation[] is for piecewise and contains all other interpolations in it, [number, number, Interpolation] is
+   // t value and corresponding interpolation for that t range
+  interpolationParameter: number | [number,number] | boolean | Interpolation[] | [number , number, Interpolation]
+}
+
 interface Path {
   id: number
   name: string
@@ -18,4 +27,6 @@ interface Path {
   callbacks: Callback[]
   holonomic: boolean
   color: string
+  open: string
 }
+
