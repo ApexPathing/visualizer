@@ -17,7 +17,8 @@ export const Poses = () => {
         radius: 0,
         arcPose: false,
         local: false,
-        color: '#008000'
+        color: '#008000',
+        open: " "
       };
 
       return [...prevPoses, newPose];
@@ -35,6 +36,8 @@ export const Poses = () => {
   const deletePose = useCallback((id: number) => {
     setPoses((prev) => prev.filter((pose) => pose.id !== id));
   }, []);
+
+  
 
   return { poses, deletePose, addPose, updatePose, setPoses };
 }
@@ -54,7 +57,8 @@ export const Paths = () => {
         controlPoints: [],
         callbacks: [],
         holonomic: true,
-        color: "#2563eb"
+        color: "#2563eb",
+        open: " "
       };
       
       return [...prevPaths, newPath];

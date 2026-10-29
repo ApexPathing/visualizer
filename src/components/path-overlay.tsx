@@ -11,11 +11,28 @@ interface PathDrawProps {
   reRender: boolean 
   currentShapeIndex:number
   setCurrentShapeIndex: Dispatch<SetStateAction<number>>
+  currentPathIndex:number
+  setCurrentPathIndex: Dispatch<SetStateAction<number>>
+  deletePose: (id: number) => void
 }
 
-export default function DrawPaths({ poses, paths,updatePose,reRender, currentShapeIndex,setCurrentShapeIndex}: PathDrawProps) {
+export default function DrawPaths({
+  poses,
+  paths,
+  updatePose,
+  reRender,
+  currentShapeIndex,
+  setCurrentShapeIndex,
+  currentPathIndex,
+  setCurrentPathIndex,
+  deletePose
+}: PathDrawProps) {
+
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+
+  
 
   const{
     image
@@ -26,11 +43,13 @@ export default function DrawPaths({ poses, paths,updatePose,reRender, currentSha
   
   const [imageLoaded, setImageLoaded] = useState(false);
   const currentShapeIndexRef = useRef(currentShapeIndex);
+  const currentPathIndexRef = useRef(currentPathIndex);
 
 
   useEffect(() => {
     currentShapeIndexRef.current = currentShapeIndex;
-  }, [currentShapeIndex]);
+    currentPathIndexRef.current = currentPathIndex;
+  }, [currentShapeIndex,currentPathIndex]);
 
   const shapes:poseShape[] = []
   let isDragging = false;
@@ -41,9 +60,10 @@ export default function DrawPaths({ poses, paths,updatePose,reRender, currentSha
   let centerY:number;
   let scaleX:number;
   let scaleY:number;
+  
 
   
-  
+ 
 
   useEffect(() => {
 
@@ -55,27 +75,61 @@ export default function DrawPaths({ poses, paths,updatePose,reRender, currentSha
     //drag and drop handler
     let is_mouse_in_pose = (x:number,y:number,pose:poseShape)=>{
 
+      const tolerance = 10;
+
       let squaredDist = (x - pose.x)**2 + (y - pose.y)**2
     
     
-    return squaredDist <= pose.radius**2
+    return squaredDist <= pose.radius**2 + tolerance**2
 
     }
+
+    let is_mouse_in_path = (x:number,y:number,spline:bsplineClass,path:Path)=>{
+      const numPoints = path.controlPoints.length * 200;
+
+      const tolerance = 5;
+
+      for (let i = 0; i <= numPoints; i++) {
+        const t = i / numPoints;
+        const pt = spline.evaluate(t);
+
+        const cpX = centerX + (pt.x * scaleX);
+        const cpY = centerY - (pt.y * scaleY);
+
+        const squaredDist = (x - cpX) ** 2 + (y - cpY) ** 2;
+        if (squaredDist <= tolerance**2) {
+          return true;
+        }
+      }
+      return false;
+    }
+  
     let mouse_down = (event: MouseEvent) => {
+      
       event.preventDefault();
       startX = event.clientX - rect.left;
       startY = event.clientY - rect.top;
       let index = 0;
+      
       for(let shape of shapes){
 
         if(is_mouse_in_pose(startX,startY,shape)){
           isDragging = true;
-          setCurrentShapeIndex(index);
+          setCurrentShapeIndex(index); 
           
         }
 
         index++;
 
+      }
+
+      index = 0;
+      for(let path of paths){
+        if(is_mouse_in_path(startX,startY,new bsplineClass(path,localPoses),path)){
+          setCurrentPathIndex(index)
+          
+        }
+        index++;
       }
     };
 
@@ -85,9 +139,10 @@ export default function DrawPaths({ poses, paths,updatePose,reRender, currentSha
         let current_shape = shapes[currentShapeIndexRef.current]
         const id = current_shape.poseId;
         updatePose(id,{
-          x:(current_shape.x - centerX) / scaleX,
-          y:(centerY - current_shape.y) / scaleY
-        })
+        x:Number(((current_shape.x - centerX) / scaleX).toFixed(3)),
+        y:Number(((centerY - current_shape.y) / scaleY).toFixed(3)),
+        open:""
+      })
         isDragging = false;
       }else {
         return
@@ -104,8 +159,8 @@ export default function DrawPaths({ poses, paths,updatePose,reRender, currentSha
       let current_shape = shapes[currentShapeIndexRef.current]
       const id = current_shape.poseId;
       updatePose(id,{
-        x:(current_shape.x - centerX) / scaleX,
-        y:(centerY - current_shape.y) / scaleY
+        x:Number(((current_shape.x - centerX) / scaleX).toFixed(3)),
+        y:Number(((centerY - current_shape.y) / scaleY).toFixed(3))
       })
 
       isDragging = false;
@@ -166,6 +221,8 @@ export default function DrawPaths({ poses, paths,updatePose,reRender, currentSha
     canvas.onmouseup= mouse_up;
     canvas.onmouseout = mouse_out;
     canvas.onmousemove = mouse_move;
+
+   
     
 
     const ctx = canvas.getContext("2d");
@@ -191,7 +248,11 @@ export default function DrawPaths({ poses, paths,updatePose,reRender, currentSha
       const posX = centerX + (pose.x * scaleX);
       const posY = centerY - (pose.y * scaleY);
       
+      if(currentShapeIndexRef.current == poses.indexOf(pose))
       shapes.push({poseId:pose.id,x:posX, y:posY, radius:7,color:pose.color})
+      else
+        shapes.push({poseId:pose.id,x:posX, y:posY, radius:5,color:pose.color})
+
     });
 
     let draw = ()=>{
@@ -199,7 +260,7 @@ export default function DrawPaths({ poses, paths,updatePose,reRender, currentSha
       ctx.clearRect(0, 0, rect.width, rect.height);
       shapes.forEach((shape)=>{
         ctx.beginPath();
-        ctx.arc(shape.x, shape.y, shape.radius, 0, 2 * Math.PI); 
+        ctx.arc(shape.x, shape.y, shape.radius, 0, 2 * Math.PI);  
         ctx.fillStyle = shape.color;
         ctx.fill();
 
@@ -208,10 +269,10 @@ export default function DrawPaths({ poses, paths,updatePose,reRender, currentSha
 
       //paths drawing using bspline class
       paths.forEach((path) => {
-        const spline = new bsplineClass(path, localPoses,updatePose);
+        const spline = new bsplineClass(path, localPoses);
 
         const points: Vector[] = [];
-        const numPoints = path.controlPoints.length *200; 
+        const numPoints = path.controlPoints.length * 200; 
 
         for (let i = 0; i <= numPoints; i++) {
             const t = i / numPoints; 
@@ -222,16 +283,19 @@ export default function DrawPaths({ poses, paths,updatePose,reRender, currentSha
         if (points.length > 0) {
           ctx.beginPath();  
           ctx.strokeStyle = path.color; 
-          ctx.lineWidth = 3;          
+          
+             
+          
+          
 
           points.forEach((pt, index) => {
-            const canvasX = centerX + (pt.x * scaleX);
-            const canvasY = centerY - (pt.y * scaleY);
+            const cpX = centerX + (pt.x * scaleX);
+            const cpY = centerY - (pt.y * scaleY);
 
             if (index === 0) {
-              ctx.moveTo(canvasX, canvasY);
+              ctx.moveTo(cpX, cpY);
             } else {
-              ctx.lineTo(canvasX, canvasY); 
+              ctx.lineTo(cpX, cpY); 
             }
           });
 

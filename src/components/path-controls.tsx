@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button";
 
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { CircleMinus, CirclePlus, GripVertical, Plus } from "lucide-react";
+import { ChevronDown, CircleMinus, CirclePlus, GripVertical, Plus } from "lucide-react";
 import { Input } from "./ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "./ui/combobox";
@@ -13,6 +13,7 @@ import { Switch } from "./ui/switch";
 import { Separator } from "./ui/separator";
 import { ColorPicker, ColorPickerArea, ColorPickerContent, ColorPickerEyeDropper,ColorPickerHueSlider, ColorPickerInput, ColorPickerSwatch, ColorPickerTrigger } from "./ui/color-picker";
 import { StoreApi, UseBoundStore } from "zustand";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 interface PathControlProps {
   poses: Pose[];
@@ -27,7 +28,10 @@ interface PathControlProps {
   addCallback: (pathId: number, currentCallbacks?: Callback[]) => void;
   updateCallback: (pathId: number, currentCallbacks: Callback[], callbackId: number, updatedFields: Partial<Callback>) => void;
   deleteCallback: (pathId: number, currentCallbacks: Callback[], callbackId: number) => void;
-  dtType: "holonomic" | "tank" | "butterfly"
+  dtType: "holonomic" | "tank" | "butterfly";
+  currentPathIndex:number
+  setCurrentPathIndex: Dispatch<SetStateAction<number>>
+  
 }
 
 export default function PathControls ({
@@ -43,18 +47,69 @@ export default function PathControls ({
   addCallback,
   updateCallback,
   deleteCallback,
-  dtType
+  dtType,
+  currentPathIndex,
+  setCurrentPathIndex
 }: PathControlProps) {
 
 
+
+  //we need to check if all of the paths are connected
+  // algorithm idea:
+  //loop over all paths
+  //check if it is connected to the previous one
+  // if it isnt, update it so that it is
+
+  //DOESNT CURRENTLY WORK
+  // useEffect(()=>{// loops indefinetly
+  //   paths.forEach((path)=>{//loops through all paths
+
+  //     const prevPath = paths[paths.indexOf(path)-1];
+  //       if(paths.indexOf(path)!= 0){// check if the path has something before it
+  //         if(prevPath.controlPoints.length > 0){// make sure the path before has control points
+  //           if(prevPath.controlPoints[prevPath.controlPoints.length-1].poseId != path.controlPoints[0].poseId) {//check if the things arent connecte
+                
+              
+              
+  //             const newPoint:ControlPoint = {
+  //               id: Date.now(),
+  //               pathId: path.id,
+  //               poseId: prevPath.controlPoints[prevPath.controlPoints.length-1].poseId
+  //             }
+  //             updatePath(path.id,{controlPoints:[newPoint,...path.controlPoints]})
+  //           }
+  //         }
+  //       }
+  //   })
+  // },[paths])
   
  
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id)
+    element?.scrollIntoView({ behavior: "smooth"});
+  };
+
+  useEffect(()=>{
+      if(!paths[currentPathIndex]) return;
+        scrollToSection(`${paths[currentPathIndex].id}`)
+  },[paths,currentPathIndex])
 
   return (
     <div className="flex h-full flex-col">
-      <Button className="flex mt-4 mx-4" onClick={addPath}>
-        <Plus className="mr-2 h-4 w-4" /> Add Path
-      </Button>
+      <div className="flex flex-row">
+        <Button className="flex mt-4 ml-5 w-70" onClick={addPath}>
+          <Plus className="mr-2 h-4 w-4" /> Add Path
+        </Button>
+        <Button className="flex mt-4"  onClick={()=>{
+            paths.forEach((path)=>{
+              updatePath(path.id,{open: " "})
+            })
+          }}>
+            
+          <ChevronDown color ={"white"} className="mr-1 ml-1 h-4 w-4" /> 
+        </Button>
+
+      </div>
 
       <ScrollArea className="w-full flex-1 min-h-0 p-4">
         <Sortable
@@ -64,10 +119,10 @@ export default function PathControls ({
         >
           <SortableContent className="flex flex-col w-full">
             {paths.map((path) => (
-              <SortableItem key={path.id} value={path.id} className="hover:transparent" asChild>
+              <SortableItem key={path.id} value={path.id} id={`${path.id}`} className="hover:transparent" asChild>
                 <div className="p-1">
-                  <Accordion type="single" collapsible className="w-full">
-                    <AccordionItem value={`${path.id}`} className="border-none">
+                  <Accordion type="single" collapsible value={`${path.id + path.open}`}  className={`w-full ${currentPathIndex == paths.indexOf(path) && "bg-red-900"} rounded-lg`}>
+                    <AccordionItem value={`${path.id}`} onClick={()=>setCurrentPathIndex(paths.indexOf(path))} className="border-none">
                       <div className="relative flex items-center w-full min-h-10 py-1">
                         <div className="relative z-10 flex flex-1 items-center justify-between gap-4 pointer-events-none pr-8">
                           <div className="flex items-center gap-2 flex-1 pointer-events-auto">
@@ -114,12 +169,21 @@ export default function PathControls ({
                               className="bg-transparent hover:bg-brand-primary/25"
                               onClick={() => deletePath(path.id)}
                             >
-                              <CircleMinus className="h-8 w-8 text-brand-primary" color="currentColor" />
+                            <CircleMinus className="h-8 w-8 text-brand-primary" color="currentColor" />
                             </Button>
                           </div>
                         </div>
 
                         <AccordionTrigger
+                          onClick = {()=>{
+                            if(path.open == ""){
+                              updatePath(path.id,{open:" "})
+                            }else if(path.open == " "){
+                              updatePath(path.id,{open:""})
+                            }
+
+                            setCurrentPathIndex(paths.indexOf(path))
+                          }}
                           className="absolute inset-0 z-0 flex h-full w-full items-center justify-between p-0 pr-4 border-none hover:no-underline text-zinc-400"
                         >
                           <span className="sr-only">Toggle Path</span>
@@ -195,7 +259,7 @@ export default function PathControls ({
                                                 });
                                               }}
                                             >
-                                              <ComboboxInput placeholder="Select a Pose" className="flex flex-1 w-full" />
+                                              <ComboboxInput placeholder="Select a Pose" className="flex flex-1 w-full bg-zinc-900" />
                                               <ComboboxContent>
                                                 <ComboboxEmpty>No poses found</ComboboxEmpty>
                                                 <ComboboxList>
@@ -287,7 +351,7 @@ export default function PathControls ({
                                           }}
                                         >
                                           <ComboboxInput
-                                            className="min-w-14 max-w-14 focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
+                                            className="min-w-14 max-w-14 focus-visible:border-red-500 focus-visible:ring-red-500 bg-zing-900"
                                           />
                                           <ComboboxContent>
                                             <ComboboxList>
@@ -315,6 +379,16 @@ export default function PathControls ({
                                         placeholder="Method"
                                         className="w-full transition-colors focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
                                       />
+                                    </div>
+                                    <div>
+                                      <Tabs defaultValue="account" className="w-[400px]">
+                                        <TabsList>
+                                          <TabsTrigger value="account">Account</TabsTrigger>
+                                          <TabsTrigger value="password">Password</TabsTrigger>
+                                        </TabsList>
+                                        <TabsContent value="account">Make changes to your account here.</TabsContent>
+                                        <TabsContent value="password">Change your password here.</TabsContent>
+                                      </Tabs>
                                     </div>
                                   </div>
                                 ))}

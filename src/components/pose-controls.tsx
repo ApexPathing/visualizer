@@ -3,13 +3,14 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { CircleMinus, GripVertical, Plus } from "lucide-react";
+import { ChevronDown, CircleMinus, GripVertical, Plus } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Dispatch, SetStateAction, useEffect } from "react";
 import { Sortable, SortableContent, SortableItem, SortableItemHandle, SortableOverlay } from "./ui/sortable";
 import { ColorPicker, ColorPickerArea, ColorPickerContent, ColorPickerEyeDropper,ColorPickerHueSlider, ColorPickerInput, ColorPickerSwatch, ColorPickerTrigger } from "./ui/color-picker";
+import { TooltipProvider } from "./ui/tooltip";
 
 interface PoseControlProps {
   deletePose: (id: number) => void;
@@ -17,13 +18,20 @@ interface PoseControlProps {
   addPose: () => void;
   updatePose: (id: number, updatedFields: Partial<Pose>) => void;
   setPoses: Dispatch<SetStateAction<Pose[]>>;
-  currentShapeIndex:number
+  currentShapeIndex:number;
+  setCurrentShapeIndex: Dispatch<SetStateAction<number>>;
+
 }
 
 export default function PoseControls ({
-  poses, deletePose, addPose, updatePose, setPoses,currentShapeIndex
+  poses, deletePose, addPose, updatePose, setPoses,currentShapeIndex,setCurrentShapeIndex
 }: PoseControlProps) {
   
+
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id)
+    element?.scrollIntoView({ behavior: "smooth"});
+  };
 
   useEffect(()=>{
     poses.forEach((pose)=>{
@@ -42,7 +50,10 @@ export default function PoseControls ({
         }
       }
 
+      
     })
+    if (!poses[currentShapeIndex]) return; 
+    scrollToSection(`${poses[currentShapeIndex].id}`)
   },[poses])
   
   function checkForDuplicateName(e: React.FocusEvent<HTMLInputElement>, poseId: number) {
@@ -78,13 +89,24 @@ export default function PoseControls ({
     }
   }
 
-
   return (
     <div className="flex h-full flex-col">
-      <Button className="flex mt-4 mx-4" onClick={addPose}>
-        <Plus className="mr-2 h-4 w-4" /> Add Pose
-      </Button>
+      <div className="flex flex-row">
+        <Button className="flex mt-4 ml-5 w-70" onClick={addPose}>
+          <Plus className="mr-2 h-4 w-4" /> Add Pose
+        </Button>
 
+        
+        <Button className="flex mt-4"  onClick={()=>{
+          poses.forEach((pose)=>{
+            updatePose(pose.id,{open: " "})
+          })
+        }}>
+          
+          <ChevronDown color ={"white"} className="mr-1 ml-1 h-4 w-4" /> 
+        </Button>
+
+      </div>
       <ScrollArea className="w-full flex-1 min-h-0 p-4">
         <Sortable
           value={poses}
@@ -93,10 +115,10 @@ export default function PoseControls ({
         >
           <SortableContent className="flex flex-col w-full">
             {poses.map((pose) => (
-              <SortableItem key={pose.id} value={pose.id} className="hover:transparent" asChild>
+              <SortableItem key={pose.id} value={pose.id} id={`${pose.id}`} className="hover:transparent" asChild>
                 <div className="p-1">
-                  <Accordion type="single" collapsible className={`w-full ${currentShapeIndex == poses.indexOf(pose) && "bg-red-900"} rounded-lg`}> 
-                    <AccordionItem value={`${pose.id}`} className="border-none">
+                  <Accordion type="single" collapsible  value={`${pose.id}` + pose.open}className={`w-full ${currentShapeIndex == poses.indexOf(pose) && "bg-red-900"} rounded-lg`}> 
+                    <AccordionItem value={`${pose.id}`} onClick={()=>{setCurrentShapeIndex(poses.indexOf(pose))}} className="border-none">
                       <div className="relative flex items-center w-full min-h-10 py-1">
                         <div className="relative z-10 flex flex-1 items-center justify-between gap-4 pointer-events-none pr-8">
                           <div className="flex items-center gap-2 flex-1 pointer-events-auto">
@@ -151,6 +173,17 @@ export default function PoseControls ({
                         </div>
 
                         <AccordionTrigger
+                          onClick={()=>{
+                            if(pose.open == " "){
+                              updatePose(pose.id,{open : ""})
+                            }
+                            if(pose.open == ""){
+                              updatePose(pose.id,{open : " "})
+                            }
+
+                            setCurrentShapeIndex(poses.indexOf(pose))
+                            
+                          }}
                           className="absolute inset-0 z-0 flex h-full w-full items-center justify-between p-0 pr-4 border-none hover:no-underline text-zinc-400"
                         >
                           <span className="sr-only">Toggle Pose</span>
