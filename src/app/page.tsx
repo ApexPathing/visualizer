@@ -28,7 +28,8 @@ export default function Home() {
     deleteControlPoint,
     addCallback,
     updateCallback,
-    deleteCallback
+    deleteCallback,
+    updateInterpolation,
   } = Paths();
 
 
@@ -54,7 +55,7 @@ export default function Home() {
         className="min-h-full max-w-md rounded-lg border min-w-full"
         onLayoutChanged={()=>setReRenderCanvas(!reRenderCanvas)}
       >
-        <ResizablePanel maxSize="1000px" minSize="350px" collapsible>
+        <ResizablePanel maxSize="1000px" minSize="300px" collapsible>
           <span>
             <PoseControls
               poses={poses}
@@ -82,7 +83,7 @@ export default function Home() {
           />
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel maxSize="1000px" minSize="350px" collapsible>
+        <ResizablePanel maxSize="1000px" minSize="300px" collapsible>
           <div className="h-full items-center justify-center">
             <span className="font-semibold">
               <PathControls
@@ -101,6 +102,7 @@ export default function Home() {
                 dtType = {dtType}
                 currentPathIndex={currentPathIndex}
                 setCurrentPathIndex={setCurrentPathIndex}
+                updateInterpolation={updateInterpolation}
               />
             </span>
           </div>

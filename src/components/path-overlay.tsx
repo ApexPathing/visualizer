@@ -247,11 +247,9 @@ export default function DrawPaths({
       
       const posX = centerX + (pose.x * scaleX);
       const posY = centerY - (pose.y * scaleY);
-      
-      if(currentShapeIndexRef.current == poses.indexOf(pose))
+    
       shapes.push({poseId:pose.id,x:posX, y:posY, radius:7,color:pose.color})
-      else
-        shapes.push({poseId:pose.id,x:posX, y:posY, radius:5,color:pose.color})
+      
 
     });
 
@@ -283,11 +281,7 @@ export default function DrawPaths({
         if (points.length > 0) {
           ctx.beginPath();  
           ctx.strokeStyle = path.color; 
-          
-             
-          
-          
-
+          ctx.lineWidth = 3;
           points.forEach((pt, index) => {
             const cpX = centerX + (pt.x * scaleX);
             const cpY = centerY - (pt.y * scaleY);
