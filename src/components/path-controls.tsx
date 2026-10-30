@@ -11,7 +11,7 @@ import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, 
 import { Sortable, SortableContent, SortableItem, SortableItemHandle, SortableOverlay } from "./ui/sortable";
 import { Switch } from "./ui/switch";
 import { Separator } from "./ui/separator";
-import { ColorPicker, ColorPickerArea, ColorPickerContent, ColorPickerEyeDropper,ColorPickerHueSlider, ColorPickerInput, ColorPickerSwatch, ColorPickerTrigger } from "./ui/color-picker";
+import { ColorPicker, ColorPickerArea, ColorPickerContent, ColorPickerEyeDropper, ColorPickerHueSlider, ColorPickerInput, ColorPickerSwatch, ColorPickerTrigger } from "./ui/color-picker";
 import { StoreApi, UseBoundStore } from "zustand";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
@@ -29,12 +29,12 @@ interface PathControlProps {
   updateCallback: (pathId: number, currentCallbacks: Callback[], callbackId: number, updatedFields: Partial<Callback>) => void;
   deleteCallback: (pathId: number, currentCallbacks: Callback[], callbackId: number) => void;
   dtType: "holonomic" | "tank" | "butterfly";
-  currentPathIndex:number
+  currentPathIndex: number
   setCurrentPathIndex: Dispatch<SetStateAction<number>>
-  
+  updateInterpolation: (pathId: number, updatedFields: Partial<Interpolation>) => void
 }
 
-export default function PathControls ({
+export default function PathControls({
   poses,
   paths,
   setPaths,
@@ -49,7 +49,8 @@ export default function PathControls ({
   deleteCallback,
   dtType,
   currentPathIndex,
-  setCurrentPathIndex
+  setCurrentPathIndex,
+  updateInterpolation
 }: PathControlProps) {
 
 
@@ -68,9 +69,9 @@ export default function PathControls ({
   //       if(paths.indexOf(path)!= 0){// check if the path has something before it
   //         if(prevPath.controlPoints.length > 0){// make sure the path before has control points
   //           if(prevPath.controlPoints[prevPath.controlPoints.length-1].poseId != path.controlPoints[0].poseId) {//check if the things arent connecte
-                
-              
-              
+
+
+
   //             const newPoint:ControlPoint = {
   //               id: Date.now(),
   //               pathId: path.id,
@@ -82,31 +83,31 @@ export default function PathControls ({
   //       }
   //   })
   // },[paths])
-  
- 
+
+
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id)
-    element?.scrollIntoView({ behavior: "smooth"});
+    element?.scrollIntoView({ behavior: "smooth" });
   };
 
-  useEffect(()=>{
-      if(!paths[currentPathIndex]) return;
-        scrollToSection(`${paths[currentPathIndex].id}`)
-  },[paths,currentPathIndex])
+  useEffect(() => {
+    if (!paths[currentPathIndex]) return;
+    scrollToSection(`${paths[currentPathIndex].id}`)
+  }, [paths, currentPathIndex])
 
   return (
     <div className="flex h-full flex-col">
       <div className="flex flex-row">
-        <Button className="flex mt-4 ml-5 w-70" onClick={addPath}>
+        <Button className="grow mt-4 ml-5" onClick={addPath}>
           <Plus className="mr-2 h-4 w-4" /> Add Path
         </Button>
-        <Button className="flex mt-4"  onClick={()=>{
-            paths.forEach((path)=>{
-              updatePath(path.id,{open: " "})
-            })
-          }}>
-            
-          <ChevronDown color ={"white"} className="mr-1 ml-1 h-4 w-4" /> 
+        <Button className="flex mt-4 mr-5" onClick={() => {
+          paths.forEach((path) => {
+            updatePath(path.id, { open: " " })
+          })
+        }}>
+
+          <ChevronDown color={"white"} className="mr-1 ml-1 h-4 w-4" />
         </Button>
 
       </div>
@@ -121,8 +122,8 @@ export default function PathControls ({
             {paths.map((path) => (
               <SortableItem key={path.id} value={path.id} id={`${path.id}`} className="hover:transparent" asChild>
                 <div className="p-1">
-                  <Accordion type="single" collapsible value={`${path.id + path.open}`}  className={`w-full ${currentPathIndex == paths.indexOf(path) && "bg-red-900"} rounded-lg`}>
-                    <AccordionItem value={`${path.id}`} onClick={()=>setCurrentPathIndex(paths.indexOf(path))} className="border-none">
+                  <Accordion type="single" collapsible value={`${path.id + path.open}`} className={`w-full ${currentPathIndex == paths.indexOf(path) && "bg-red-900"} rounded-lg`}>
+                    <AccordionItem value={`${path.id}`} onClick={() => setCurrentPathIndex(paths.indexOf(path))} className="border-none">
                       <div className="relative flex items-center w-full min-h-10 py-1">
                         <div className="relative z-10 flex flex-1 items-center justify-between gap-4 pointer-events-none pr-8">
                           <div className="flex items-center gap-2 flex-1 pointer-events-auto">
@@ -147,9 +148,9 @@ export default function PathControls ({
 
                           <div className="flex items-center gap-1 pointer-events-auto">
                             <ColorPicker defaultFormat="hex" value={path.color}
-                             onValueChange={(color)=>updatePath(path.id,{color:color})}>
+                              onValueChange={(color) => updatePath(path.id, { color: color })}>
                               <ColorPickerTrigger asChild>
-                                <ColorPickerSwatch className="mb-px h-5 w-5"/>
+                                <ColorPickerSwatch className="mb-px h-5 w-5" />
                               </ColorPickerTrigger>
                               <ColorPickerContent>
                                 <ColorPickerArea />
@@ -160,26 +161,26 @@ export default function PathControls ({
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <ColorPickerInput withoutAlpha className="pointer-events-none"/>
+                                  <ColorPickerInput withoutAlpha className="pointer-events-none" />
                                 </div>
                               </ColorPickerContent>
                             </ColorPicker>
-                            
+
                             <Button
                               className="bg-transparent hover:bg-brand-primary/25"
                               onClick={() => deletePath(path.id)}
                             >
-                            <CircleMinus className="h-8 w-8 text-brand-primary" color="currentColor" />
+                              <CircleMinus className="h-8 w-8 text-brand-primary" color="currentColor" />
                             </Button>
                           </div>
                         </div>
 
                         <AccordionTrigger
-                          onClick = {()=>{
-                            if(path.open == ""){
-                              updatePath(path.id,{open:" "})
-                            }else if(path.open == " "){
-                              updatePath(path.id,{open:""})
+                          onClick={() => {
+                            if (path.open == "") {
+                              updatePath(path.id, { open: " " })
+                            } else if (path.open == " ") {
+                              updatePath(path.id, { open: "" })
                             }
 
                             setCurrentPathIndex(paths.indexOf(path))
@@ -191,22 +192,22 @@ export default function PathControls ({
                       </div>
 
                       <AccordionContent className="pt-2 h-full">
-                        <div className="flex flex-col ml-5">
-                          <div 
-                          className="flex flex-1 w-full gap-2 my-1"
-                          hidden = {dtType != "butterfly"} 
+                        <div className="flex flex-col ml-5 pr-3">
+                          <div
+                            className="flex flex-1 w-full gap-2 my-1"
+                            hidden={dtType != "butterfly"}
                           >
-                            <button 
+                            <button
                               type="button"
                               onClick={() => updatePath(path.id, { holonomic: true })}
-                              className={`flex-1 rounded-md justify-center text-center text-xs h-7 font-semibold transition-colors ${path.holonomic ? "bg-brand-primary" : "bg-zinc-800 hover:bg-zinc-700"}`}
+                              className={`flex-1 rounded-md justify-center text-center text-xs h-7 font-semibold transition-colors ${path.holonomic ? "bg-brand-primary" : "bg-zinc-900 hover:bg-zinc-700"}`}
                             >
                               Holonomic
                             </button>
                             <button
                               type="button"
                               onClick={() => updatePath(path.id, { holonomic: false })}
-                              className={`flex-1 rounded-md justify-center text-center text-xs h-7 font-semibold transition-colors ${!path.holonomic ? "bg-brand-primary" : "bg-zinc-800 hover:bg-zinc-700"}`}
+                              className={`flex-1 rounded-md justify-center text-center text-xs h-7 font-semibold transition-colors ${!path.holonomic ? "bg-brand-primary" : "bg-zinc-900 hover:bg-zinc-700"}`}
                             >
                               Tank
                             </button>
@@ -227,7 +228,7 @@ export default function PathControls ({
                                   <CirclePlus className="h-4 w-4 text-lime-500" color="currentColor" />
                                 </Button>
                               </div>
-                              
+
                               <AccordionContent className="flex flex-col h-full mt-1">
                                 <Sortable
                                   value={path.controlPoints || []}
@@ -247,7 +248,7 @@ export default function PathControls ({
                                               <CircleMinus className="h-4 w-4 text-brand-primary" color="currentColor" />
                                             </Button>
                                             <Combobox
-                                              items={poses.filter(pose => 
+                                              items={poses.filter(pose =>
                                                 pose.name !== "" &&
                                                 (pose.id === controlPoint.poseId || path.controlPoints.every(cp => cp.poseId !== pose.id))
                                               )}
@@ -272,7 +273,7 @@ export default function PathControls ({
                                               </ComboboxContent>
                                             </Combobox>
                                           </div>
-                                          
+
                                           <SortableItemHandle asChild>
                                             <Button variant="ghost" size="icon" className="size-8 cursor-grab active:cursor-grabbing text-zinc-400 hover:text-white">
                                               <GripVertical className="h-4 w-4" />
@@ -300,16 +301,16 @@ export default function PathControls ({
                                   </div>
                                 </AccordionTrigger>
 
-                                <Button 
-                                  className="ml-2 bg-transparent hover:bg-lime-500/25" 
-                                  onClick={() => addCallback(path.id, path.callbacks)} 
+                                <Button
+                                  className="ml-2 bg-transparent hover:bg-lime-500/25"
+                                  onClick={() => addCallback(path.id, path.callbacks)}
                                 >
                                   <CirclePlus className="h-4 w-4 text-lime-500" color="currentColor" />
                                 </Button>
                               </div>
                               <AccordionContent className="flex h-full flex-col gap-2">
-                                { /* TODO: When we add support for converting distance to s value, make sure that they are compared by s value, not just the raw distance */ }
-                                {(path.callbacks.sort((a, b) => (a.value ?? 0) - (b.value ?? 0)) || []).map((callback) => ( 
+                                { /* TODO: When we add support for converting distance to s value, make sure that they are compared by s value, not just the raw distance */}
+                                {(path.callbacks.sort((a, b) => (a.value ?? 0) - (b.value ?? 0)) || []).map((callback) => (
                                   <div className="flex flex-row mt-2 items-center gap-2 text-2xl" key={callback.id}>
                                     <Button className="bg-transparent hover:bg-transparent p-0 h-auto" onClick={() => deleteCallback(path.id, path.callbacks, callback.id)}>
                                       <CircleMinus color="#C00000" />
@@ -324,9 +325,9 @@ export default function PathControls ({
                                           let final = null;
                                           if (e.target.value !== "") {
                                             const parsed = parseFloat(e.target.value);
-                                            if (!isNaN(parsed)) { final = Math.max(0, Math.min(1, parsed)); } 
+                                            if (!isNaN(parsed)) { final = Math.max(0, Math.min(1, parsed)); }
                                           }
-                                          updateCallback(path.id, path.callbacks, callback.id, { value: final});
+                                          updateCallback(path.id, path.callbacks, callback.id, { value: final });
                                         }}
                                         onBlur={(e) => {
                                           if (e.target.value !== "") {
@@ -351,7 +352,7 @@ export default function PathControls ({
                                           }}
                                         >
                                           <ComboboxInput
-                                            className="min-w-14 max-w-14 focus-visible:border-red-500 focus-visible:ring-red-500 bg-zing-900"
+                                            className="min-w-14 max-w-14 focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
                                           />
                                           <ComboboxContent>
                                             <ComboboxList>
@@ -380,21 +381,44 @@ export default function PathControls ({
                                         className="w-full transition-colors focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
                                       />
                                     </div>
-                                    <div>
-                                      <Tabs defaultValue="account" className="w-[400px]">
-                                        <TabsList>
-                                          <TabsTrigger value="account">Account</TabsTrigger>
-                                          <TabsTrigger value="password">Password</TabsTrigger>
-                                        </TabsList>
-                                        <TabsContent value="account">Make changes to your account here.</TabsContent>
-                                        <TabsContent value="password">Change your password here.</TabsContent>
-                                      </Tabs>
-                                    </div>
                                   </div>
                                 ))}
                               </AccordionContent>
                             </AccordionItem>
                           </Accordion>
+                        </div>
+                        <div>
+                          <div className="grid grid-cols-2 grid-rows-2 pl-3 pr-3 pt-1 pb-2 gap-1">
+
+                            <Button
+                              className={`${path.interpolation.interpolationType == "tangential" ? "bg-brand-primary" : "bg-zinc-900 hover:bg-zinc-700"}`}
+                              onClick={() => updateInterpolation(path.id, { interpolationType: "tangential" })}
+                            >
+                              Tangential
+                            </Button>
+
+                            <Button
+                              className={`${path.interpolation.interpolationType == "constant" ? "bg-brand-primary" : "bg-zinc-900 hover:bg-zinc-700"}`}
+                              onClick={() => updateInterpolation(path.id, { interpolationType: "constant" })}
+                            >
+                              Constant
+                            </Button>
+
+                            <Button
+                              className={`${path.interpolation.interpolationType == "linear" ? "bg-brand-primary" : "bg-zinc-900 hover:bg-zinc-700"}`}
+                              onClick={() => updateInterpolation(path.id, { interpolationType: "linear" })}
+                            >
+                              Linear
+                            </Button>
+
+                            <Button
+                              className={`${path.interpolation.interpolationType == "piecewise" ? "bg-brand-primary" : "bg-zinc-900 hover:bg-zinc-700"}`}
+                              onClick={() => updateInterpolation(path.id, { interpolationType: "piecewise" })}
+                            >
+                              Piecewise
+                            </Button>
+
+                          </div>
                         </div>
                       </AccordionContent>
                     </AccordionItem>

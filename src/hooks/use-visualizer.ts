@@ -58,7 +58,11 @@ export const Paths = () => {
         callbacks: [],
         holonomic: true,
         color: "#2563eb",
-        open: " "
+        open: " ",
+        interpolation:{
+          interpolationType: "tangential",
+          interpolationParameter: false
+        }
       };
       
       return [...prevPaths, newPath];
@@ -122,6 +126,22 @@ export const Paths = () => {
     updatePath(pathId, { callbacks: filteredCallbacks });
   };
 
+  const updateInterpolation = (pathId:number, updatedFields:Partial<Interpolation>) =>{
+    const interpolation = paths[paths.findIndex((path)=>path.id ==pathId)].interpolation
+
+    const newInterpolation = {...interpolation, ... updatedFields}
+    
+
+    updatePath(pathId,{interpolation:newInterpolation})
+  }
+
+  const addPiecewise = (pathId:number, currentInterpolationParameter:Interpolation[], interpolation:Interpolation)=>{
+      const newInterpolationParameter = [...currentInterpolationParameter,interpolation]
+      updateInterpolation(pathId,{interpolationParameter:newInterpolationParameter})
+  }
+
+  
+
   return {
     paths,
     setPaths,
@@ -134,6 +154,8 @@ export const Paths = () => {
     addCallback,
     updateCallback,
     deleteCallback,
+    updateInterpolation,
+  
     
   }
 }

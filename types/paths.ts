@@ -28,5 +28,6 @@ interface Path {
   holonomic: boolean
   color: string
   open: string
+  interpolation: Interpolation
 }
 
