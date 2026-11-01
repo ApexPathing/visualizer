@@ -13,12 +13,24 @@ interface ControlPoint {
 
 
 interface Interpolation{
-  interpolationType: "linear" | "piecewise" | "constant" | "tangential" // name of the type
-   // number is for constant, [number,number] is for linear, boolean is for reversed tangential
-   // Interpolation[] is for piecewise and contains all other interpolations in it, [number, number, Interpolation] is
-   // t value and corresponding interpolation for that t range
-  interpolationParameter: number | [number,number] | boolean | Interpolation[] | [number , number, Interpolation]
+  interpolationType: "smoothToFinish" | "nodeBased" | "constant" | "tangential"
+  tangentialParameter? : TangentialParameter
+  constantParameter? : "front" | "end"
+  nodeBasedParameter? : NodeBasedParameter[]
 }
+
+
+interface TangentialParameter{
+  tangentialType: "forward" | "backward" | "optimal" | "custom"
+  customOffset?:number
+}
+
+interface NodeBasedParameter{
+  id : number
+  s:number
+  angle:number
+}
+
 
 interface Path {
   id: number

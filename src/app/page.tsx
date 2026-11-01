@@ -30,6 +30,10 @@ export default function Home() {
     updateCallback,
     deleteCallback,
     updateInterpolation,
+    updateTangential,
+    addNode,
+    updateNode,
+    deleteNode
   } = Paths();
 
 
@@ -45,6 +49,7 @@ export default function Home() {
   const [currentShapeIndex,setCurrentShapeIndex] = useState(0);
   const [currentPathIndex,setCurrentPathIndex] = useState(0);
  
+  
 
   
 
@@ -83,7 +88,7 @@ export default function Home() {
           />
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel maxSize="1000px" minSize="300px" collapsible>
+        <ResizablePanel maxSize="1000px" minSize="330px" collapsible>
           <div className="h-full items-center justify-center">
             <span className="font-semibold">
               <PathControls
@@ -103,6 +108,10 @@ export default function Home() {
                 currentPathIndex={currentPathIndex}
                 setCurrentPathIndex={setCurrentPathIndex}
                 updateInterpolation={updateInterpolation}
+                updateTangential={updateTangential}
+                addNode={addNode}
+                updateNode={updateNode}
+                deleteNode={deleteNode}
               />
             </span>
           </div>
