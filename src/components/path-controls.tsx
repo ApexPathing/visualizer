@@ -527,8 +527,7 @@ export default function PathControls({
                                   <AccordionContent className="h-fit">
                                     <div>
                                       {path.interpolation.nodeBasedParameter?.map((node) => (
-                                        
-                                        <div key={node.id} className="flex flex-row">
+                                        <div key={node.id} className="flex flex-row"> 
                                           <div className="flex ml-4 pr-1 mt-2 grow gap-3 flex-row">
                                             {"S:"}
                                             <Input
@@ -546,10 +545,10 @@ export default function PathControls({
                                               }}
                                               onBlur={(e)=>handleInputBlur(e,0,1)}
                                               placeholder="S" />
-                                            <p className="ml-2">{"->"}</p>
+                                            <p className="ml-2 gap-2">{"->"}</p>
                                             <Input
                                               type="number"
-                                              className="-mt-1 min-w-20 mr-2 flex justify-center transition-colors focus-visible:border-brand-primary focus-visible:ring-brand-primary bg-zinc-900"
+                                              className="-mt-1 min-w-5 mr-2 flex justify-center transition-colors focus-visible:border-brand-primary focus-visible:ring-brand-primary bg-zinc-900"
                                               min={-180}
                                               max={180}
                                               value={node.angle}

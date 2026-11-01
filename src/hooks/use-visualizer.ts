@@ -181,7 +181,7 @@ export const Paths = () => {
     const node = nodes?.find((node)=>node.id==nodeId)
 
     if(node && nodes){
-      const newNodes:NodeBasedParameter[] = nodes.map((n)=>node.id ? {...node, ... updatedFields} : n)
+      const newNodes:NodeBasedParameter[] = nodes.map((n)=>node.id == n.id? {...node, ... updatedFields} : n)
 
       updateInterpolation(pathId,{nodeBasedParameter:newNodes})
     }
