@@ -401,7 +401,7 @@ export default function PathControls({
                               className={`${path.interpolation.interpolationType == "smoothToFinish" ? "bg-brand-primary" : "bg-zinc-900 hover:bg-zinc-700"}`}
                               onClick={() => updateInterpolation(path.id, { interpolationType: "smoothToFinish" })}
                             >
-                              Linear
+                              Smooth To End
                             </Button>
 
                             <Button
