@@ -64,7 +64,7 @@ export const Paths = () => {
         interpolation:{
           interpolationType: "tangential",
           tangentialParameter: {tangentialType:"forward"},
-          constantParameter: "front",
+          constantParameter: "start",
           nodeBasedParameter:[]
         }
       };

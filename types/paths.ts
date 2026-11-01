@@ -15,7 +15,7 @@ interface ControlPoint {
 interface Interpolation{
   interpolationType: "smoothToFinish" | "nodeBased" | "constant" | "tangential"
   tangentialParameter? : TangentialParameter
-  constantParameter? : "front" | "end"
+  constantParameter? : "start" | "end"
   nodeBasedParameter? : NodeBasedParameter[]
 }
 

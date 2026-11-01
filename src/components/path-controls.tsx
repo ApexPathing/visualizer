@@ -470,14 +470,14 @@ export default function PathControls({
                               <Field title="Angle is based on the first or last pose's heading values" className="flex flex-col w-full">
                                 <FieldLabel className="block">
                                   <div className="block">Constant Angle</div>
-                                  <div className="block mt-1 text-[10px]">{"Uses heading of Control Point at the front or end of this path."}</div>
+                                  <div className="block mt-1 text-[10px]">{"Uses heading of Control Point at the start or end of this path."}</div>
 
                                 </FieldLabel>
                                 <FieldContent>
 
                                   <Combobox
-                                    items={["front", "end"]}
-                                    value={path.interpolation.constantParameter ?? "front"}
+                                    items={["start", "end"]}
+                                    value={path.interpolation.constantParameter ?? "start"}
                                     onValueChange={(value) => {
                                       if (value)
                                         updateInterpolation(path.id, { constantParameter: value })
