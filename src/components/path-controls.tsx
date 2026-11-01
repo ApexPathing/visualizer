@@ -408,7 +408,7 @@ export default function PathControls({
                               className={`${path.interpolation.interpolationType == "nodeBased" ? "bg-brand-primary" : "bg-zinc-900 hover:bg-zinc-700"}`}
                               onClick={() => updateInterpolation(path.id, { interpolationType: "nodeBased" })}
                             >
-                              Piecewise
+                              Node Based
                             </Button>
                           </div>
                           <div>
