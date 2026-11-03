@@ -9,16 +9,27 @@ interface ControlPoint {
   id: number
   poseId: number | null // ID of the pose this control point is associated with
   pathId: number | null // ID of the path this control point is associated with
+  isNative: boolean
+  nativeCoords?: Vector
+}
+
+interface nativeControlPoint{
+  id:number
+  coord:Vector
 }
 
 
 interface Interpolation{
   interpolationType: "smoothToFinish" | "nodeBased" | "constant" | "tangential"
   tangentialParameter? : TangentialParameter
-  constantParameter? : "start" | "end"
+  constantParameter? : ConstantParameter
   nodeBasedParameter? : NodeBasedParameter[]
 }
 
+interface ConstantParameter{
+  constantType:"start" | "end",
+  heading: number | undefined
+}
 
 interface TangentialParameter{
   tangentialType: "forward" | "backward" | "optimal" | "custom"

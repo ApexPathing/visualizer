@@ -26,9 +26,10 @@ interface PathControlProps {
   updatePath: (id: number, updatedFields: Partial<Path>) => void;
   deletePath: (id: number) => void;
   deleteControlPoint: (pathId: number, currentPoints: ControlPoint[], controlPointId: number) => void;
-  addControlPoint: (pathId: number, currentPoints?: ControlPoint[]) => void;
+  addExternalControlPoint: (pathId: number, currentPoints?: ControlPoint[]) => void;
   updateControlPoint: (pathId: number, currentPoints: ControlPoint[], controlPointId: number, updatedFields: Partial<ControlPoint>) => void;
   addCallback: (pathId: number, currentCallbacks?: Callback[]) => void;
+  addNativeControlPoint: (pathId: number) => void;
   updateCallback: (pathId: number, currentCallbacks: Callback[], callbackId: number, updatedFields: Partial<Callback>) => void;
   deleteCallback: (pathId: number, currentCallbacks: Callback[], callbackId: number) => void;
   dtType: "holonomic" | "tank" | "butterfly";
@@ -39,6 +40,8 @@ interface PathControlProps {
   addNode: (pathId: number) => void
   updateNode: (pathId: number, nodeId: number, updatedFields: Partial<NodeBasedParameter>) => void
   deleteNode: (pathId: number, nodeId: number) => void
+  updateConstant: (pathId: number, updatedFields: Partial<ConstantParameter>) => void
+  setReRenderCanvas: Dispatch<SetStateAction<boolean>>
 }
 
 export default function PathControls({
@@ -49,7 +52,8 @@ export default function PathControls({
   updatePath,
   deletePath,
   deleteControlPoint,
-  addControlPoint,
+  addExternalControlPoint,
+  addNativeControlPoint,
   updateControlPoint,
   addCallback,
   updateCallback,
@@ -61,10 +65,10 @@ export default function PathControls({
   updateTangential,
   addNode,
   updateNode,
-  deleteNode
+  deleteNode,
+  updateConstant,
+  setReRenderCanvas
 }: PathControlProps) {
-
-
 
   //copied from Dylan's code in pose-controls and tweaked for interpolation, thanks Dylan!
 
@@ -216,7 +220,7 @@ export default function PathControls({
                                 </AccordionTrigger>
                                 <Button
                                   className="ml-2 bg-transparent hover:bg-lime-500/25"
-                                  onClick={() => addControlPoint(path.id, path.controlPoints)}
+                                  onClick={() => addNativeControlPoint(path.id)}
                                 >
                                   <CirclePlus className="h-4 w-4 text-lime-500" color="currentColor" />
                                 </Button>
@@ -228,10 +232,11 @@ export default function PathControls({
                                   onValueChange={(newPoints) => updatePath(path.id, { controlPoints: newPoints })}
                                   getItemValue={(item) => item.id}
                                 >
+                                  <Button className="grow ml-3 mr-3 mb-2" onClick={()=>addExternalControlPoint(path.id, path.controlPoints)}>Add External</Button>
                                   <SortableContent className="flex flex-col gap-2">
                                     {(path.controlPoints || []).map((controlPoint) => (
                                       <SortableItem key={controlPoint.id} value={controlPoint.id} asChild>
-                                        <div className="flex flex-row items-center justify-between gap-4 py-1">
+                                        <div className="flex flex-row items-center justify-between py-1">
                                           <div className="flex flex-row items-center w-full gap-2">
                                             <Button
                                               variant="ghost"
@@ -240,6 +245,7 @@ export default function PathControls({
                                             >
                                               <CircleMinus className="h-4 w-4 text-brand-primary" color="currentColor" />
                                             </Button>
+                                            {!controlPoint.isNative ?
                                             <Combobox
                                               items={poses.filter(pose =>
                                                 pose.name !== "" &&
@@ -251,6 +257,7 @@ export default function PathControls({
                                                 updateControlPoint(path.id, path.controlPoints, controlPoint.id, {
                                                   poseId: selectedPose ? selectedPose.id : -1
                                                 });
+                                                setReRenderCanvas(false)
                                               }}
                                             >
                                               <ComboboxInput placeholder="Select a Pose" className="flex flex-1 w-full bg-zinc-900" />
@@ -265,6 +272,50 @@ export default function PathControls({
                                                 </ComboboxList>
                                               </ComboboxContent>
                                             </Combobox>
+                                            
+                                            :
+                                            <div className="flex flex-row mt-1 ">
+
+                                            <div className="mt-1.25 mr-0.5">X:</div>
+                                            <Input
+                                             type="number"
+                                             placeholder="X"
+                                             min={-70.75}
+                                             max={70.75}
+                                             value={controlPoint.nativeCoords?.x}
+                                             onChange={(e)=>{
+                                                const parsed = parseInt(e.target.value)
+                                                let final = parsed;
+                                                if(isNaN(parsed)) final = 0;
+                                                updateControlPoint(path.id,path.controlPoints,controlPoint.id,{
+                                                  nativeCoords:{x:final,y:controlPoint.nativeCoords?.y ?? 0}
+                                                })
+                                             }}
+                                             onBlur={(e)=>handleInputBlur(e,-70.75,70.75)}
+                                             className="min-w-20 transition-colors focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
+                                            />
+                                            <div className=" ml-1.5 mr-0.5 mt-1.25">Y:</div>
+                                            <Input
+                                              type="number"
+                                              placeholder="Y"
+                                              min={-70.75}
+                                              max={70.75}
+                                              value={controlPoint.nativeCoords?.y ?? 0}
+                                              onChange={(e)=>{
+                                                const parsed = parseInt(e.target.value)
+                                                let final = parsed;
+                                                if(isNaN(parsed)) final = 0;
+                                                updateControlPoint(path.id,path.controlPoints,controlPoint.id,{
+                                                  nativeCoords:{x:controlPoint.nativeCoords?.x ?? 0,y:final}
+                                                })
+                                              }}
+                                              onBlur={(e)=>handleInputBlur(e,-70.75,70.75)}
+                                              className="min-w-20 transition-colors focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
+                                            />
+
+
+                                            </div>
+                                            }
                                           </div>
 
                                           <SortableItemHandle asChild>
@@ -465,22 +516,22 @@ export default function PathControls({
                             </Field>
                             <div
                               hidden={path.interpolation.interpolationType != "constant"}
-                              className="flex justify-center ml-3 mr-3 mt-2"
+                              className="flex justify-center ml-3 mr-3 mt-2 flex-col"
                             >
                               <Field title="Angle is based on the first or last pose's heading values" className="flex flex-col w-full">
                                 <FieldLabel className="block">
                                   <div className="block">Constant Angle</div>
-                                  <div className="block mt-1 text-[10px]">{"Uses heading of Control Point at the start or end of this path."}</div>
-
                                 </FieldLabel>
                                 <FieldContent>
-
                                   <Combobox
                                     items={["start", "end"]}
-                                    value={path.interpolation.constantParameter ?? "start"}
+                                    value={path.interpolation.constantParameter?.constantType ?? "start"}
                                     onValueChange={(value) => {
                                       if (value)
-                                        updateInterpolation(path.id, { constantParameter: value })
+                                        updateInterpolation(path.id, { constantParameter: {
+                                          constantType:value,
+                                          heading:path.interpolation.constantParameter?.heading} 
+                                        })
                                     }}
                                   >
                                     <ComboboxInput placeholder="Select a Constant Type" className="flex flex-1 w-full bg-zinc-900" />
@@ -495,9 +546,61 @@ export default function PathControls({
                                       </ComboboxList>
                                     </ComboboxContent>
                                   </Combobox>
-
                                 </FieldContent>
                               </Field>
+
+                              <div className="bg-zinc-900 mt-2 rounded-lg">
+                                        {path.controlPoints.length >= 1 && (
+                                          path.interpolation.constantParameter?.constantType == "start" 
+                                            ? 
+                                              !path.controlPoints.at(0)?.isNative
+                                            :
+                                              !path.controlPoints.at(-1)?.isNative
+                                            ) ?
+                                          <div className="flex justify-center h-7 mt-1">
+                                            <p className="mb-px"
+                                            hidden = {path.interpolation.constantParameter?.constantType != "start"}
+                                            >
+                                                Using start pose's heading
+                                            </p>
+                                            <p className="pb-2" hidden = {path.interpolation.constantParameter?.constantType != "end"}
+                                            >
+                                                Using end pose's heading
+                                            </p>
+                                          </div>
+                                        :
+                                          <p className="flex justify-center mt-3" hidden = {
+                                            path.controlPoints.length > 0
+                                          }>
+                                            Add a control points
+                                          </p>
+                                        }
+                                        <Input
+                                          hidden = {
+                                            path.interpolation.constantParameter?.constantType == "start" 
+                                            ? 
+                                              !path.controlPoints.at(0)?.isNative
+                                            :
+                                              !path.controlPoints.at(-1)?.isNative
+                                            
+                                          }
+                                          type="number"
+                                          className="flex justify-center transition-colors focus-visible:border-brand-primary focus-visible:ring-brand-primary bg-zinc-900"
+                                          min={-180}
+                                          max={180}
+                                          placeholder="Constant Angle"
+                                          value={path.interpolation.constantParameter?.heading ?? 0}
+                                          onChange={(e) => {
+                                            const parsed = parseFloat(e.target.value)
+                                            let final = parsed;
+      
+                                            if (isNaN(parsed)) final = 0;
+                                            if (parsed === null || isNaN(parsed) || parsed === undefined) final = 0;
+                                            updateConstant(path.id,{heading:final})
+                                          }}
+                                          onBlur={(e) => handleInputBlur(e, -180, 180)}
+                                        />
+                              </div>
                             </div>
                             <div
                               hidden={path.interpolation.interpolationType != "smoothToFinish"}
@@ -519,7 +622,7 @@ export default function PathControls({
                                     </Button>
 
                                     <AccordionTrigger className="hover:no-underline">
-                                      <div className="flex w-full grow flex-row text-md -mt-0.5 ml-3 mr-2 ">
+                                      <div className="flex w-full grow flex-row text-md items-center -mt-0.5 ml-3 mr-2 ">
                                         Nodes
                                       </div>
                                     </AccordionTrigger>
@@ -528,10 +631,11 @@ export default function PathControls({
                                     <div>
                                       {path.interpolation.nodeBasedParameter?.map((node) => (
                                         <div key={node.id} className="flex flex-row"> 
-                                          <div className="flex ml-4 pr-1 mt-2 grow gap-3 flex-row">
-                                            {"S:"}
+                                          <div className="flex ml-3 pr-1 mt-2 grow gap-1 text-xs flex-row">
+                                            <div className="mt-0.75 flex flex-row gap-3 "><div>{"S"}</div> <div> {" ->"} </div><div className="-ml-2">angle:</div></div>
                                             <Input
                                             step={0.1}
+                                            
                                               type="number"
                                               className="-mt-1 min-w-10 flex justify-center transition-colors focus-visible:border-brand-primary focus-visible:ring-brand-primary bg-zinc-900"
                                               min={0}
@@ -545,7 +649,7 @@ export default function PathControls({
                                               }}
                                               onBlur={(e)=>handleInputBlur(e,0,1)}
                                               placeholder="S" />
-                                            <p className="ml-2 gap-2">{"->"}</p>
+                                            <p className="ml-2 mt-0.75">{"->"}</p>
                                             <Input
                                               type="number"
                                               className="-mt-1 min-w-5 mr-2 flex justify-center transition-colors focus-visible:border-brand-primary focus-visible:ring-brand-primary bg-zinc-900"

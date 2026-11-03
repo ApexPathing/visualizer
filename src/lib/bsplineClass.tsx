@@ -13,145 +13,157 @@ export class bsplineClass{
 
     constructor(path:Path,fullPoses:Pose[]){
 
-        let poses:Pose[] = []
-        path.controlPoints.forEach((cPoint)=>{
-
-            const currentPose = fullPoses.find((pose)=> pose.id === cPoint.poseId)
-
-            if(currentPose){
-                poses.push(currentPose)
-            }
-        })
-
 
         
 
+        
         //this is where all of the conversions will happen
 
 
-        //first, make sure the list has a valid amount of poses
+        //first, make sure the list has a valid amount of control points
 
-        if(poses.length < 2) return;
+        if(path.controlPoints.length < 2) return;
 
-        //then, make sure all values are valid
+       
 
-
-        if (poses.some(pose => pose.x == null || pose.y == null)) {
-            return;
-        }
-
-        //convert all poses to vectors
         
-        let poseVector:Vector[] = []
-        for (const pose of poses){
-            
-            const temp:Vector = {
-                x:pose.x ?? 0, // if pose.x is null, give a value of 0. Our filter above will automatically 
-                // return if any of the values are null, so this will never happen, it just lets the Vector class have 
-                // pure number types instead of  number | null
-                y:pose.y ?? 0
-            };
 
-            //check if arcPose
+        //extract controlPoint and convert to vector
+        //algorithm idea: 
 
-            if (pose.arcPose){
 
-                let r = pose.radius ?? 0
+        //loop through control points
+            //   if control point is native, just add it to the vector
+            //   else create a new vector to hold the pose x and y
+                //  if the pose is an arcPose store its index in a temporary array
+                //  else add -1 to the array
+        //once all of the values are added, loop through the new vector array
+        //  if the current vector's index has a non -1 value in the arcPose array
+            //  run arcPose calculations and add the vectors to the array
+        let pathVector:Vector[] = []
+        let arcPoses:([index:number,id:number])[] = []
+        path.controlPoints.forEach((CP)=>{
+
+
+            if(CP.isNative){
+                pathVector.push(CP.nativeCoords ?? {x:0,y:0})
+                arcPoses.push([-1,-1])
+            }
+            else{
+                const pose = fullPoses.find((p)=>p.id == CP.poseId)
+                const index = fullPoses.findIndex((p)=>p.id == CP.poseId)
                 
-                //if endpoints
-                const index = poses.findIndex(p => p.id === pose.id)
-                if(index != 0 && index != (poses.length -1)){
-
-
-                    const leftVector:Vector = {
-                        x:poses[index-1].x ?? 0,
-                        y:poses[index-1].y ?? 0
+                if(pose && pose.x !=null && pose.y !=null){
+                    const newVector = {
+                        x:pose.x,
+                        y:pose.y
                     }
 
-                    const rightVector:Vector = {
-                        x:poses[index+1].x ?? 0,
-                        y:poses[index+1].y ?? 0
-                    }
+                    
+                    if(pose?.arcPose) arcPoses.push([index,pose.id])
+                    else arcPoses.push([-1,-1])
+                    
+                    pathVector.push(newVector)
+                }
+            }
 
+        })
+
+
+        pathVector.forEach((vector,index)=>{
+            if(arcPoses[index][0]!= -1){
+
+                const pose = fullPoses.find((p)=>p.id==arcPoses[index][1])
+                let r = pose?.radius ?? 0
+                    
+                    //if endpoints
+                    if(index != 0 && index != (pathVector.length -1)){
+
+                    //get vectors
+                    const leftVector = pathVector[index-1]
+                    
+                    const rightVector = pathVector[index+1]
+
+
+                    //get distance from center vector
                     const leftDist = Math.sqrt(
-                        (leftVector.x - temp.x)**2
+                        (leftVector.x - vector.x)**2
                         +
-                        (leftVector.y - temp.y)**2
+                        (leftVector.y - vector.y)**2
                     )
 
                     const rightDist = Math.sqrt(
-                        (rightVector.x - temp.x)**2
+                        (rightVector.x - vector.x)**2
                         +
-                        (rightVector.y - temp.y)**2
+                        (rightVector.y - vector.y)**2
                     )
 
+                    //make sure that the radius isn't more than the radius
                     if(rightDist < r || leftDist < r){
                         r = Math.min(rightDist,leftDist)
                     }
 
+                    //formula created by me :)
                     const leftArcPose = {
-                        x: temp.x + (((leftVector.x - temp.x)/leftDist) * r),
-                        y: temp.y + (((leftVector.y - temp.y)/leftDist) * r)
+                        x: vector.x + (((leftVector.x - vector.x)/leftDist) * r),
+                        y: vector.y + (((leftVector.y - vector.y)/leftDist) * r)
                     }
                 
                     const rightArcPose = {
-                        x: temp.x + (((rightVector.x - temp.x)/rightDist) * r),
-                        y: temp.y + (((rightVector.y - temp.y)/rightDist) * r)
+                        x: vector.x + (((rightVector.x - vector.x)/rightDist) * r),
+                        y: vector.y + (((rightVector.y - vector.y)/rightDist) * r)
                     }
-
-                    poseVector.push(leftArcPose,temp,rightArcPose)
-
-                    
-                    continue
-
-
+                    pathVector = [...pathVector.splice(index,1, leftArcPose,vector,rightArcPose)]
                 }
-            }
-    
-            poseVector.push(temp)
-        }
 
-        //assign posevectors to our object
+            }
+        })
+
+
+
+
+        //assign all of the Vectors  to our object
     
 
         //the first thing we need to do is to get the ghost points
         
-        //the formula is P_0+(-1(P_1-P_0)) where P_0 is the axis point(that you reflect across, otherwise known as the endpoint) 
-        // and P_1 is the point being reflected(otherwise known as the second, or second to last point)
+        //the formula is P_0+(-1(P_1-P_0)) where P_0 is the axis point(that you reflect across, or endpoint) 
+        // and P_1 is the point being reflected(either the second or the second to last point)
     
-    
-        
+        if (pathVector.length < 2) return; // make sure there are enough points
 
         let ghostPoints:Vector[] = []// make a list for the ghost points
     
-        const neg1 = poseVector.length-1
-        const neg2 = poseVector.length-2
+        const neg1 = pathVector.length-1
+        const neg2 = pathVector.length-2
     
         //will give error cus the value "might be null" even though we filtered for it already, so just add an if statement
-        if((poseVector[0].x!=null && poseVector[1].x!=null && poseVector[neg1].x!=null && poseVector[neg2].x!=null 
-            && poseVector[0].y!=null && poseVector[1].y!=null && poseVector[neg1].y!=null && poseVector[neg2].y!=null)
+        if((pathVector[0].x!=null && pathVector[1].x!=null && pathVector[neg1].x!=null && pathVector[neg2].x!=null 
+            && pathVector[0].y!=null && pathVector[1].y!=null && pathVector[neg1].y!=null && pathVector[neg2].y!=null)
         ){
+
+            //long ahh if statement btw
             ghostPoints = [
                 {
-                    x:poseVector[0].x+((poseVector[1].x - poseVector[0].x) * -1),
-                    y:poseVector[0].y+((poseVector[1].y - poseVector[0].y) * -1)
+                    x:pathVector[0].x+((pathVector[1].x - pathVector[0].x) * -1),
+                    y:pathVector[0].y+((pathVector[1].y - pathVector[0].y) * -1)
                 },
                 {
-                    x:poseVector[neg1].x+((poseVector[neg2].x - poseVector[neg1].x) * -1),
-                    y:poseVector[neg1].y+((poseVector[neg2].y - poseVector[neg1].y) * -1)
+                    x:pathVector[neg1].x+((pathVector[neg2].x - pathVector[neg1].x) * -1),
+                    y:pathVector[neg1].y+((pathVector[neg2].y - pathVector[neg1].y) * -1)
     
                 }
             ]
         }
 
     
-        //combine ghost points and posevectors into splinePoints
+        //combine ghost points and pathVectors into splinePoints
 
         //now that our ghost points are sorted out, we can make the array that will be put into the spline
         let splinePoints:Vector[] = [];
 
         splinePoints.push(ghostPoints[0])
-        splinePoints.push(...poseVector)
+        splinePoints.push(...pathVector)
         splinePoints.push(ghostPoints[1])
 
 

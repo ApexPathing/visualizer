@@ -23,7 +23,8 @@ export default function Home() {
     addPath,
     updatePath,
     deletePath,
-    addControlPoint,
+    addExternalControlPoint,
+    addNativeControlPoint,
     updateControlPoint,
     deleteControlPoint,
     addCallback,
@@ -33,7 +34,8 @@ export default function Home() {
     updateTangential,
     addNode,
     updateNode,
-    deleteNode
+    deleteNode,
+    updateConstant
   } = Paths();
 
 
@@ -85,6 +87,7 @@ export default function Home() {
           currentPathIndex={currentPathIndex}
           setCurrentPathIndex={setCurrentPathIndex}
           deletePose={deletePose}
+          updateControlPoint={updateControlPoint}
           />
         </ResizablePanel>
         <ResizableHandle withHandle />
@@ -98,7 +101,8 @@ export default function Home() {
                 addPath={addPath}
                 updatePath={updatePath}
                 deletePath={deletePath}
-                addControlPoint={addControlPoint}
+                addExternalControlPoint={addExternalControlPoint}
+                addNativeControlPoint={addNativeControlPoint}
                 updateControlPoint={updateControlPoint}
                 deleteControlPoint={deleteControlPoint}
                 addCallback={addCallback}
@@ -112,6 +116,8 @@ export default function Home() {
                 addNode={addNode}
                 updateNode={updateNode}
                 deleteNode={deleteNode}
+                updateConstant={updateConstant}
+                setReRenderCanvas={setReRenderCanvas}
               />
             </span>
           </div>
