@@ -9,16 +9,39 @@ interface ControlPoint {
   id: number
   poseId: number | null // ID of the pose this control point is associated with
   pathId: number | null // ID of the path this control point is associated with
+  isNative: boolean
+  nativeCoords?: Vector
+}
+
+interface nativeControlPoint{
+  id:number
+  coord:Vector
 }
 
 
 interface Interpolation{
-  interpolationType: "linear" | "piecewise" | "constant" | "tangential" // name of the type
-   // number is for constant, [number,number] is for linear, boolean is for reversed tangential
-   // Interpolation[] is for piecewise and contains all other interpolations in it, [number, number, Interpolation] is
-   // t value and corresponding interpolation for that t range
-  interpolationParameter: number | [number,number] | boolean | Interpolation[] | [number , number, Interpolation]
+  interpolationType: "smoothToFinish" | "nodeBased" | "constant" | "tangential"
+  tangentialParameter? : TangentialParameter
+  constantParameter? : ConstantParameter
+  nodeBasedParameter? : NodeBasedParameter[]
 }
+
+interface ConstantParameter{
+  constantType:"start" | "end",
+  heading: number | undefined
+}
+
+interface TangentialParameter{
+  tangentialType: "forward" | "backward" | "optimal" | "custom"
+  customOffset?:number
+}
+
+interface NodeBasedParameter{
+  id : number
+  s:number
+  angle:number
+}
+
 
 interface Path {
   id: number

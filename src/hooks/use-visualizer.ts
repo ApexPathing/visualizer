@@ -59,9 +59,13 @@ export const Paths = () => {
         holonomic: true,
         color: "#2563eb",
         open: " ",
+
+
         interpolation:{
           interpolationType: "tangential",
-          interpolationParameter: false
+          tangentialParameter: {tangentialType:"forward"},
+          constantParameter: {constantType:"start",heading:undefined},
+          nodeBasedParameter:[]
         }
       };
       
@@ -81,16 +85,37 @@ export const Paths = () => {
     setPaths((prev) => prev.filter((path) => path.id !== id));
   }, [setPaths]);
 
-  const addControlPoint = (pathId: number, currentPoints: ControlPoint[] = []) => {
+  const addExternalControlPoint = (pathId: number, currentPoints: ControlPoint[] = []) => {
     const newPoint: ControlPoint = {
       id: Date.now(),
       poseId: null,
-      pathId: pathId
+      pathId: pathId,
+      isNative:false
     };
     updatePath(pathId, {
       controlPoints: [...currentPoints, newPoint]
     });
   };
+
+  const addNativeControlPoint = (pathId:number)=>{
+    const path = paths.find((p)=>p.id==pathId)
+    const controlPoints = path?.controlPoints
+
+    const newCP:ControlPoint = {
+      id:Date.now(),
+      poseId:null,
+      pathId:pathId,
+      isNative:true,
+      nativeCoords:{
+        x:0,
+        y:0
+      }
+    }
+
+    updatePath(pathId,{
+      controlPoints: [...controlPoints ?? [], newCP]
+    })
+  }
 
   const updateControlPoint = (pathId: number, currentPoints: ControlPoint[], controlPointId: number, updatedFields: Partial<ControlPoint>) => {
     const updatedPoints = currentPoints.map((point) =>
@@ -126,6 +151,8 @@ export const Paths = () => {
     updatePath(pathId, { callbacks: filteredCallbacks });
   };
 
+  
+
   const updateInterpolation = (pathId:number, updatedFields:Partial<Interpolation>) =>{
     const interpolation = paths[paths.findIndex((path)=>path.id ==pathId)].interpolation
 
@@ -134,12 +161,74 @@ export const Paths = () => {
 
     updatePath(pathId,{interpolation:newInterpolation})
   }
+  const updateConstant = (pathId:number, updatedFields:Partial<ConstantParameter>) =>{
+    const path = paths.find((p)=>p.id==pathId)
+    const constantParameter = path?.interpolation.constantParameter
+    if(constantParameter){
+     
+      updateInterpolation(path.id,{constantParameter:{...constantParameter, ... updatedFields}})
+    }
+  }
+  const updateTangential = (pathId: number, updatedFields: Partial<TangentialParameter>) => {
+    const path = paths.find((p) => p.id === pathId);
+    if (!path) return;
+  
+    const currentTangential:TangentialParameter = path.interpolation.tangentialParameter ?? {tangentialType:"forward"};
+  
+    
+    const newTangentialParameter = {
+      ...currentTangential,
+      ...updatedFields
+    };
+  
+   
+    updatePath(pathId, {
+      interpolation: {
+        ...path.interpolation,
+        tangentialParameter: newTangentialParameter
+      }
+    });
+  };
 
-  const addPiecewise = (pathId:number, currentInterpolationParameter:Interpolation[], interpolation:Interpolation)=>{
-      const newInterpolationParameter = [...currentInterpolationParameter,interpolation]
-      updateInterpolation(pathId,{interpolationParameter:newInterpolationParameter})
+
+  const addNode = (pathId:number)=>{
+    const path = paths.find((p)=>p.id==pathId)
+    const nodes = path?.interpolation.nodeBasedParameter
+
+    const newNode = {
+      id:Date.now(),
+      s: 0.5,
+      angle:0
+    }
+
+    if(path && nodes) updateInterpolation(pathId,{nodeBasedParameter:[...nodes, newNode]})
   }
 
+  const updateNode = (pathId:number,nodeId:number,updatedFields:Partial<NodeBasedParameter>)=>{
+
+    const path = paths.find((p)=>p.id==pathId)
+    const nodes = path?.interpolation.nodeBasedParameter;
+    const node = nodes?.find((node)=>node.id==nodeId)
+
+    if(node && nodes){
+      const newNodes:NodeBasedParameter[] = nodes.map((n)=>node.id == n.id? {...node, ... updatedFields} : n)
+
+      updateInterpolation(pathId,{nodeBasedParameter:newNodes})
+    }
+  }
+
+
+  const deleteNode = (pathId:number, nodeId:number) =>{
+    const path = paths.find((p)=>p.id==pathId)
+    const nodes = path?.interpolation.nodeBasedParameter;
+    if(nodes){
+      const updatedNodes = nodes.filter((node)=>node.id != nodeId)
+      updateInterpolation(pathId,{nodeBasedParameter:updatedNodes})
+    }
+  }
+
+ 
+  
   
 
   return {
@@ -148,15 +237,19 @@ export const Paths = () => {
     addPath,
     updatePath,
     deletePath,
-    addControlPoint,
+    addExternalControlPoint,
     updateControlPoint,
     deleteControlPoint,
     addCallback,
+    addNativeControlPoint,
     updateCallback,
     deleteCallback,
     updateInterpolation,
-  
-    
+    updateTangential,
+    addNode,
+    updateNode,
+    deleteNode,
+    updateConstant
   }
 }
 

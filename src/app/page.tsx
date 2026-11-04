@@ -23,13 +23,19 @@ export default function Home() {
     addPath,
     updatePath,
     deletePath,
-    addControlPoint,
+    addExternalControlPoint,
+    addNativeControlPoint,
     updateControlPoint,
     deleteControlPoint,
     addCallback,
     updateCallback,
     deleteCallback,
     updateInterpolation,
+    updateTangential,
+    addNode,
+    updateNode,
+    deleteNode,
+    updateConstant
   } = Paths();
 
 
@@ -45,6 +51,7 @@ export default function Home() {
   const [currentShapeIndex,setCurrentShapeIndex] = useState(0);
   const [currentPathIndex,setCurrentPathIndex] = useState(0);
  
+  
 
   
 
@@ -80,10 +87,11 @@ export default function Home() {
           currentPathIndex={currentPathIndex}
           setCurrentPathIndex={setCurrentPathIndex}
           deletePose={deletePose}
+          updateControlPoint={updateControlPoint}
           />
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel maxSize="1000px" minSize="300px" collapsible>
+        <ResizablePanel maxSize="1000px" minSize="330px" collapsible>
           <div className="h-full items-center justify-center">
             <span className="font-semibold">
               <PathControls
@@ -93,7 +101,8 @@ export default function Home() {
                 addPath={addPath}
                 updatePath={updatePath}
                 deletePath={deletePath}
-                addControlPoint={addControlPoint}
+                addExternalControlPoint={addExternalControlPoint}
+                addNativeControlPoint={addNativeControlPoint}
                 updateControlPoint={updateControlPoint}
                 deleteControlPoint={deleteControlPoint}
                 addCallback={addCallback}
@@ -103,6 +112,12 @@ export default function Home() {
                 currentPathIndex={currentPathIndex}
                 setCurrentPathIndex={setCurrentPathIndex}
                 updateInterpolation={updateInterpolation}
+                updateTangential={updateTangential}
+                addNode={addNode}
+                updateNode={updateNode}
+                deleteNode={deleteNode}
+                updateConstant={updateConstant}
+                setReRenderCanvas={setReRenderCanvas}
               />
             </span>
           </div>

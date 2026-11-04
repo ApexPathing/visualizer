@@ -204,7 +204,7 @@ export default function PoseControls ({
                                   placeholder="X"
                                   min={-70.75}
                                   max={70.75}
-                                  className="w-20 transition-colors focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
+                                  className="w-20 transition-colors focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900 "
                                   value={pose.x  ?? 0}
                                   onChange={(e) => handleInputChange(e, pose.id, 'x', -70.75, 70.75)}
                                   onBlur={(e) => handleInputBlur(e, pose.id, 'x', -70.75, 70.75)}
