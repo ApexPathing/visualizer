@@ -98,7 +98,7 @@ export class bsplineClass{
                         (rightVector.y - vector.y)**2
                     )
 
-                    //make sure that the radius isn't more than the radius
+                    //make sure that the radius isn't more than the distance between the two
                     if(rightDist < r || leftDist < r){
                         r = Math.min(rightDist,leftDist)
                     }
@@ -113,7 +113,9 @@ export class bsplineClass{
                         x: vector.x + (((rightVector.x - vector.x)/rightDist) * r),
                         y: vector.y + (((rightVector.y - vector.y)/rightDist) * r)
                     }
-                    pathVector = [...pathVector.splice(index,1, leftArcPose,vector,rightArcPose)]
+
+                    //adds the first elements, then adds arcposes, then adds the stuff AFTER the first vector to not include it twice
+                    pathVector = [...pathVector.slice(0,index),leftArcPose,vector,rightArcPose,...pathVector.slice(index+1)]
                 }
 
             }
