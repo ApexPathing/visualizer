@@ -42,6 +42,7 @@ interface PathControlProps {
   deleteNode: (pathId: number, nodeId: number) => void
   updateConstant: (pathId: number, updatedFields: Partial<ConstantParameter>) => void
   setReRenderCanvas: Dispatch<SetStateAction<boolean>>
+  updateNativeCoords: (pathId: number, CPID: number, updatedFields: Partial<Vector>) => void
 }
 
 export default function PathControls({
@@ -67,10 +68,11 @@ export default function PathControls({
   updateNode,
   deleteNode,
   updateConstant,
-  setReRenderCanvas
+  setReRenderCanvas,
+  updateNativeCoords
 }: PathControlProps) {
 
-  //copied from Dylan's code in pose-controls and tweaked for interpolation, thanks Dylan!
+  //copied from Dylan's code in pose-controls, thanks Dylan!
 
   function handleInputBlur(e: React.FocusEvent<HTMLInputElement>, min: number, max: number) {
     if (e.target.value !== "") {
@@ -90,7 +92,23 @@ export default function PathControls({
   useEffect(() => {
     if (!paths[currentPathIndex]) return;
     scrollToSection(`${paths[currentPathIndex].id}`)
-  }, [paths, currentPathIndex])
+
+    paths.forEach((path)=>{
+      path.controlPoints.forEach((CP)=>{
+        if(CP.isNative && CP.nativeCoords){
+          if(CP.nativeCoords.x > 70.75) updateNativeCoords(path.id,CP.id,{x:70.75})
+          else if(CP.nativeCoords.x < -70.75)updateNativeCoords(path.id,CP.id,{x:-70.75})
+
+          if(CP.nativeCoords.y > 70.75) updateNativeCoords(path.id,CP.id,{y:70.75})
+          else if(CP.nativeCoords.y < -70.75)updateNativeCoords(path.id,CP.id,{y:-70.75})
+
+
+        }
+      })
+    })
+
+    
+  }, [paths, currentPathIndex,updateControlPoint])
 
   return (
     <div className="flex h-full flex-col">

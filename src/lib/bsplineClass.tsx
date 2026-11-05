@@ -69,7 +69,14 @@ export class bsplineClass{
 
         })
 
-
+        //stores the index the arcPoses need to be input into, 
+        // so arcposes get calculated with the actual poses and not other arcposes
+        //wait lowk im larping... its a straight line anyway T-T (created formula btw)
+        // its ok this is a nicer implementation anyway
+        const arcPoseVectors:({
+            index:number,
+            vectors:[Vector,Vector,Vector]
+        }[]) = []
         pathVector.forEach((vector,index)=>{
             if(arcPoses[index][0]!= -1){
 
@@ -114,17 +121,20 @@ export class bsplineClass{
                         y: vector.y + (((rightVector.y - vector.y)/rightDist) * r)
                     }
 
-                    //adds the first elements, then adds arcposes, then adds the stuff AFTER the first vector to not include it twice
-                    pathVector = [...pathVector.slice(0,index),leftArcPose,vector,rightArcPose,...pathVector.slice(index+1)]
+                    arcPoseVectors.push({index:index,vectors:[leftArcPose,vector,rightArcPose]})
                 }
-
             }
+        })
+
+        //one final loop to add the arc poses back into the list
+        arcPoseVectors.forEach((arcPose)=>{
+            pathVector.splice(arcPose.index,arcPose.index,arcPose.vectors[0],arcPose.vectors[1],arcPose.vectors[2])
         })
 
 
 
 
-        //assign all of the Vectors  to our object
+        //assigning all of the Vectors to our path
     
 
         //the first thing we need to do is to get the ghost points
