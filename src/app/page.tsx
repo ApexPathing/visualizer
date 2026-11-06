@@ -26,6 +26,7 @@ export default function Home() {
     addExternalControlPoint,
     addNativeControlPoint,
     updateControlPoint,
+    updateNativeCoords,
     deleteControlPoint,
     addCallback,
     updateCallback,
@@ -118,6 +119,7 @@ export default function Home() {
                 deleteNode={deleteNode}
                 updateConstant={updateConstant}
                 setReRenderCanvas={setReRenderCanvas}
+                updateNativeCoords={updateNativeCoords}
               />
             </span>
           </div>

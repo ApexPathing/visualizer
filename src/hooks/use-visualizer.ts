@@ -64,6 +64,7 @@ export const Paths = () => {
         interpolation:{
           interpolationType: "tangential",
           tangentialParameter: {tangentialType:"forward"},
+          smoothToEndParameter:[0,0],
           constantParameter: {constantType:"start",heading:undefined},
           nodeBasedParameter:[]
         }
@@ -123,6 +124,13 @@ export const Paths = () => {
     );
     updatePath(pathId, { controlPoints: updatedPoints });
   };
+  const updateNativeCoords = (pathId:number,CPID:number,updatedFields:Partial<Vector>)=>{
+     const path = paths.find((p)=>p.id==pathId)
+     if(path){
+      path.controlPoints.forEach((CP)=> CP.id == CPID &&
+       updateControlPoint(pathId,path.controlPoints,CPID,{nativeCoords:{...CP.nativeCoords ?? {x:0,y:0}, ...updatedFields}}))
+    }
+  }
 
   const deleteControlPoint = (pathId: number, currentPoints: ControlPoint[], controlPointId: number) => {
     const filteredPoints = currentPoints.filter((point) => point.id !== controlPointId);
@@ -239,6 +247,7 @@ export const Paths = () => {
     deletePath,
     addExternalControlPoint,
     updateControlPoint,
+    updateNativeCoords,
     deleteControlPoint,
     addCallback,
     addNativeControlPoint,
