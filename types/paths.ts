@@ -21,10 +21,13 @@ interface nativeControlPoint{
 
 interface Interpolation{
   interpolationType: "smoothToFinish" | "nodeBased" | "constant" | "tangential"
+  smoothToEndParameter? : [number,number]//start, end
   tangentialParameter? : TangentialParameter
   constantParameter? : ConstantParameter
   nodeBasedParameter? : NodeBasedParameter[]
 }
+
+
 
 interface ConstantParameter{
   constantType:"start" | "end",

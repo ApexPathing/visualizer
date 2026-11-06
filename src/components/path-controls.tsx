@@ -300,7 +300,7 @@ export default function PathControls({
                                              placeholder="X"
                                              min={-70.75}
                                              max={70.75}
-                                             value={controlPoint.nativeCoords?.x}
+                                             value={controlPoint.nativeCoords?.x.toFixed(3)}
                                              onChange={(e)=>{
                                                 const parsed = parseInt(e.target.value)
                                                 let final = parsed;
@@ -318,7 +318,7 @@ export default function PathControls({
                                               placeholder="Y"
                                               min={-70.75}
                                               max={70.75}
-                                              value={controlPoint.nativeCoords?.y ?? 0}
+                                              value={controlPoint.nativeCoords?.y.toFixed(3)}
                                               onChange={(e)=>{
                                                 const parsed = parseInt(e.target.value)
                                                 let final = parsed;
@@ -538,7 +538,7 @@ export default function PathControls({
                             >
                               <Field title="Angle is based on the first or last pose's heading values" className="flex flex-col w-full">
                                 <FieldLabel className="block">
-                                  <div className="block">Constant Angle</div>
+                                  <div className="block">Constant Angle:</div>
                                 </FieldLabel>
                                 <FieldContent>
                                   <Combobox
@@ -590,7 +590,7 @@ export default function PathControls({
                                           <p className="flex justify-center mt-3" hidden = {
                                             path.controlPoints.length > 0
                                           }>
-                                            Add a control points
+                                            Add a control point
                                           </p>
                                         }
                                         <Input
@@ -622,9 +622,66 @@ export default function PathControls({
                             </div>
                             <div
                               hidden={path.interpolation.interpolationType != "smoothToFinish"}
-                              className="flex flex-row justify-center ml-3 mr-3 gap-1 mt-2 border rounded-lg bg-zinc-900"
+                              className="flexjustify-center ml-3 mr-3 mt-2 rounded-lg gap-1"
                             >
-                              <div className="m-3">Defined by headings of start and end control points of this path.</div>
+                              {path.controlPoints.length > 0 ? (
+                                <div className="flex flex-row gap-1 ">
+                                  <div className="flex-1 bg-zinc-900 border  rounded-lg h-12 flex flex-col justify-center">
+                                    <p hidden={path.controlPoints[0].isNative} className="text-sm pt-3 text-center">
+                                      Using start pose's heading
+                                    </p>
+                                    <Input
+                                      hidden={!path.controlPoints[0].isNative}
+                                      type = "number"
+                                      min={-180}
+                                      max={180}
+                                      className="w-full text-center grow  border-none"
+                                      value={path.interpolation.smoothToEndParameter?.[0] ?? 0}
+                                      onChange={(e)=>{
+                                        const parsed = parseInt(e.target.value)
+                                        let final = parsed;
+                                        if(isNaN(parsed)) final = 0;
+                                        updateInterpolation(path.id,{smoothToEndParameter:[
+                                          final,
+                                          path.interpolation.smoothToEndParameter?.[1] ?? 0
+                                        ]})
+                                      }}
+                                      onBlur={(e)=>handleInputBlur(e,-180,180)}
+                                    />
+                                  </div>
+                                  
+                                  <div className="flex-1 bg-zinc-900 border rounded-lg h-12 flex flex-col justify-center">
+                                    <p hidden={path.controlPoints.at(-1)?.isNative} className="text-sm pt-3 text-center">
+                                      Using end pose's heading
+                                    </p>
+                                    <Input
+                                      hidden={!path.controlPoints.at(-1)?.isNative}
+                                      type = "number"
+                                      min={-180}
+                                      max={180}
+                                      className="w-full text-center grow  border-none"
+                                      value={path.interpolation.smoothToEndParameter?.[0] ?? 0}
+                                      onChange={(e)=>{
+                                        const parsed = parseInt(e.target.value)
+                                        let final = parsed;
+                                        if(isNaN(parsed)) final = 0;
+                                        updateInterpolation(path.id,{smoothToEndParameter:[
+                                          path.interpolation.smoothToEndParameter?.[0] ?? 0,
+                                          final
+                                        ]})
+                                      }}
+                                      onBlur={(e)=>handleInputBlur(e,-180,180)}
+                                    />
+                                  </div>
+                                </div>
+                                )
+                                :
+                                <div>
+                                  <p className="bg-zinc-900 p-4 flex justify-center mt-3 rounded-lg" >
+                                    Add a control point
+                                  </p>
+                                </div>
+                              }
                             </div>
                             <div hidden={path.interpolation.interpolationType != "nodeBased"} className="bg-zinc-900 rounded-lg mr-3 ml-3">
                               <Accordion type="single" className="w-full" collapsible >

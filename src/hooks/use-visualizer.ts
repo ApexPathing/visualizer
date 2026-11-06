@@ -64,6 +64,7 @@ export const Paths = () => {
         interpolation:{
           interpolationType: "tangential",
           tangentialParameter: {tangentialType:"forward"},
+          smoothToEndParameter:[0,0],
           constantParameter: {constantType:"start",heading:undefined},
           nodeBasedParameter:[]
         }
