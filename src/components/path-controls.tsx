@@ -117,6 +117,22 @@ export default function PathControls({
             updateNativePoint(path.id,CP.id,{coord:{y:-70.75,x:CP.nativeParameter.coord.x}})
         }
       })
+
+
+      //connected path stuff
+
+      paths.forEach((path,index)=>{
+        if(index == 0){
+          if(path.firstPose != null) updatePath(path.id,{firstPose:null})
+        }else{
+          if(paths[index - 1].controlPoints.length > 0){
+            const endCP = paths[index -1].controlPoints.at(-1)
+            if (path.firstPose !== endCP) updatePath(path.id, { firstPose: endCP })
+          }else{
+            if(path.firstPose != null) updatePath(path.id,{firstPose:null})
+          }
+        }
+      })
     })
 
     

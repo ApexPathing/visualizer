@@ -24,7 +24,7 @@ export class bsplineClass {
 
         //first, make sure the list has a valid amount of control points
 
-        if (path.controlPoints.length < 2) return;
+        if ((path.controlPoints.length  + 1) < 2) return; // length of control points plus first pose
 
 
 
@@ -36,6 +36,32 @@ export class bsplineClass {
         //first, lets add all the vectors to the thing
 
         let arcPoseVectors: { vector: Vector, arcPose: boolean, radius: number }[] = []
+
+        //connect paths
+
+        if(path.firstPose){
+            //can either be a native or pose reference
+
+            if(path.firstPose.isNative && path.firstPose.nativeParameter){
+                arcPoseVectors.push({
+                    vector:path.firstPose.nativeParameter.coord,
+                    arcPose:false,
+                    radius:0})
+            }else{
+                //pose reference
+                const pose = fullPoses.find((pose)=>pose.id == path.firstPose?.poseId)
+                if(pose){
+                    arcPoseVectors.push({
+                        vector:{
+                            x: pose.x ?? 0,
+                            y: pose.y ?? 0
+                        },
+                        arcPose:false,
+                        radius:0
+                    })
+                }
+            }
+        }
 
         //loop through each control point
 

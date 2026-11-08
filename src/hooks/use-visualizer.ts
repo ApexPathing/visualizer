@@ -50,6 +50,14 @@ export const Paths = () => {
   const addPath = () => {
     setPaths((prevPaths) => {
       const nextNumber = prevPaths.length + 1;
+      let firstPose:ControlPoint | null = null;
+      if(prevPaths.length > 0){
+        //make sure the previous path has control points
+        const prevPath = prevPaths.at(-1)
+        if(prevPath && prevPath.controlPoints.length > 0 ){
+          firstPose = prevPath.controlPoints.at(-1) as ControlPoint
+        }
+      }
     
       const newPath: Path = {
         id: Date.now(),
@@ -59,6 +67,7 @@ export const Paths = () => {
         holonomic: true,
         color: "#2563eb",
         open: " ",
+        firstPose:firstPose,
 
 
         interpolation:{
