@@ -107,9 +107,11 @@ export const Paths = () => {
       poseId:null,
       pathId:pathId,
       isNative:true,
-      nativeCoords:{
-        x:0,
-        y:0
+      nativeParameter:{
+        id:Date.now(), // id might be useless lowk
+        coord:{x:0,y:0},
+        arcPose:false,
+        radius:0
       }
     }
 
@@ -124,13 +126,25 @@ export const Paths = () => {
     );
     updatePath(pathId, { controlPoints: updatedPoints });
   };
-  const updateNativeCoords = (pathId:number,CPID:number,updatedFields:Partial<Vector>)=>{
-     const path = paths.find((p)=>p.id==pathId)
-     if(path){
-      path.controlPoints.forEach((CP)=> CP.id == CPID &&
-       updateControlPoint(pathId,path.controlPoints,CPID,{nativeCoords:{...CP.nativeCoords ?? {x:0,y:0}, ...updatedFields}}))
+  
+  const updateNativePoint = (pathId: number, CPID: number, updatedFields: Partial<NativeControlPoint>) => {
+    const path = paths.find((p) => p.id === pathId);
+    const controlPoints = path?.controlPoints;
+    
+    if (controlPoints){
+  
+      const CP = controlPoints.find((cp) => cp.id === CPID);
+      if (CP){
+    
+        const updatedNative: NativeControlPoint = {
+          ...CP.nativeParameter,
+          ...updatedFields,
+        } as NativeControlPoint;
+      
+        updateControlPoint(pathId, controlPoints, CPID, { nativeParameter: updatedNative });
+      }
     }
-  }
+  };
 
   const deleteControlPoint = (pathId: number, currentPoints: ControlPoint[], controlPointId: number) => {
     const filteredPoints = currentPoints.filter((point) => point.id !== controlPointId);
@@ -247,7 +261,7 @@ export const Paths = () => {
     deletePath,
     addExternalControlPoint,
     updateControlPoint,
-    updateNativeCoords,
+    updateNativePoint,
     deleteControlPoint,
     addCallback,
     addNativeControlPoint,

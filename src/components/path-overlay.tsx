@@ -16,6 +16,7 @@ interface PathDrawProps {
   setCurrentPathIndex: Dispatch<SetStateAction<number>>
   deletePose: (id: number) => void
   updateControlPoint: (pathId: number, currentPoints: ControlPoint[], controlPointId: number, updatedFields: Partial<ControlPoint>) => void
+  updateNativePoint: (pathId: number, CPID: number, updatedFields: Partial<NativeControlPoint>) => void
 }
 
 export default function DrawPaths({
@@ -28,6 +29,7 @@ export default function DrawPaths({
   currentPathIndex,
   setCurrentPathIndex,
   updateControlPoint,
+  updateNativePoint
 }: PathDrawProps) {
 
 
@@ -138,7 +140,7 @@ export default function DrawPaths({
     
       
       for (let i = 0; i < natives.length; i++) {
-        const c = natives[i].nativeCoords;
+        const c = natives[i].nativeParameter?.coord;
         if (!c) continue;
         const px = centerX + c.x * scaleX;
         const py = centerY - c.y * scaleY;
@@ -192,10 +194,10 @@ export default function DrawPaths({
         paths.forEach((path)=>{
           path.controlPoints.forEach((CP)=>{
             if(CP.id == currentNative?.id){
-              updateControlPoint(path.id,path.controlPoints,CP.id,{nativeCoords:{
-                x:currentNative.nativeCoords?.x ?? 0,
-                y:currentNative.nativeCoords?.y ?? 0}})
-            }
+              updateNativePoint(path.id,CP.id,{coord:{
+                x:Number(currentNative.nativeParameter?.coord.x.toFixed(3)) ?? 0,
+                y:Number(currentNative.nativeParameter?.coord.y.toFixed(3)) ?? 0}})
+              }
           })
         })
         isDraggingNative = false;
@@ -226,10 +228,10 @@ export default function DrawPaths({
         paths.forEach((path)=>{
           path.controlPoints.forEach((CP)=>{
             if(CP.id == currentNative.id){
-              updateControlPoint(path.id,path.controlPoints,CP.id,{nativeCoords:{
-                x:Number(currentNative.nativeCoords?.x.toFixed(3)) ?? 0,
-                y:Number(currentNative.nativeCoords?.y.toFixed(3)) ?? 0}})
-            }
+              updateNativePoint(path.id,CP.id,{coord:{
+                x:Number(currentNative.nativeParameter?.coord.x.toFixed(3)) ?? 0,
+                y:Number(currentNative.nativeParameter?.coord.y.toFixed(3)) ?? 0}})
+              }
           })
         })
       }
@@ -270,10 +272,10 @@ export default function DrawPaths({
 
         let currentNative = natives.find((CP)=>CP.id == currentNativeIdRef.current)
 
-        const nativeCoords = currentNative?.nativeCoords;
+        const nativeCoords = currentNative?.nativeParameter?.coord;
         
-        if(nativeCoords)
-          currentNative.nativeCoords = {
+        if(nativeCoords && currentNative.nativeParameter)
+          currentNative.nativeParameter.coord = {
             x: nativeCoords.x + dx / scaleX,
             y: nativeCoords.y - dy / scaleY,
           };
@@ -400,8 +402,8 @@ export default function DrawPaths({
           if(CP.isNative){
             ctx.beginPath();
             ctx.fillStyle = path.color;
-            const x = centerX + ((CP.nativeCoords?.x ?? 0) * scaleX);
-            const y = centerY - ((CP.nativeCoords?.y ?? 0) * scaleY);
+            const x = centerX + ((CP.nativeParameter?.coord.x ?? 0) * scaleX);
+            const y = centerY - ((CP.nativeParameter?.coord.y ?? 0) * scaleY);
             ctx.arc(x, y, 3, 0, 2 * Math.PI); 
             ctx.fill();
             ctx.beginPath();
@@ -465,19 +467,19 @@ export default function DrawPaths({
 
       paths.forEach((path)=>{ 
         path.controlPoints.forEach((CP)=>{
-          if(CP.isNative && CP.nativeCoords){
+          if(CP.isNative && CP.nativeParameter){
             if(currentNativeIdRef.current == CP.id){
               ctx.beginPath();
               ctx.fillStyle = "rgba(255,0,0,0.4)";
-              const x = centerX + (CP.nativeCoords.x * scaleX);
-              const y = centerY - (CP.nativeCoords.y * scaleY);
+              const x = centerX + (CP.nativeParameter.coord.x * scaleX);
+              const y = centerY - (CP.nativeParameter.coord.y * scaleY);
               let transX = 10,transY = 10;
          
              
-              if(CP.nativeCoords.x <= 0 && CP.nativeCoords.y >= 0) transX = 10, transY = 10;
-              if(CP.nativeCoords.x >= 0 && CP.nativeCoords.y >= 0) transX = -10 - 75, transY = 10;
-              if(CP.nativeCoords.x <= 0 && CP.nativeCoords.y <= 0) transX = 10, transY = -10 - 25;
-              if(CP.nativeCoords.x >= 0 && CP.nativeCoords.y <= 0) transX = -10 - 75, transY = -10 - 25;
+              if(CP.nativeParameter.coord.x <= 0 && CP.nativeParameter.coord.y >= 0) transX = 10, transY = 10;
+              if(CP.nativeParameter.coord.x >= 0 && CP.nativeParameter.coord.y >= 0) transX = -10 - 75, transY = 10;
+              if(CP.nativeParameter.coord.x <= 0 && CP.nativeParameter.coord.y <= 0) transX = 10, transY = -10 - 25;
+              if(CP.nativeParameter.coord.x >= 0 && CP.nativeParameter.coord.y <= 0) transX = -10 - 75, transY = -10 - 25;
 
               ctx.roundRect(x + transX,y + transY,75,25,10);
               ctx.fill();
@@ -488,24 +490,24 @@ export default function DrawPaths({
       
       paths.forEach((path)=>{ 
         path.controlPoints.forEach((CP)=>{
-          if(CP.isNative && CP.nativeCoords){
+          if(CP.isNative && CP.nativeParameter){
             if(currentNativeIdRef.current == CP.id){
               ctx.beginPath();
               ctx.fillStyle = "white";
-              const x = centerX + (CP.nativeCoords.x * scaleX);
-              const y = centerY - (CP.nativeCoords.y * scaleY);
+              const x = centerX + (CP.nativeParameter.coord.x * scaleX);
+              const y = centerY - (CP.nativeParameter.coord.y * scaleY);
               let transX = 10,transY = 10;
          
 
-              if(CP.nativeCoords.x <= 0 && CP.nativeCoords.y >= 0) transX = 15, transY = 25 + 1;
-              if(CP.nativeCoords.x >= 0 && CP.nativeCoords.y >= 0) transX = -15 - 63, transY = 25+1;
-              if(CP.nativeCoords.x <= 0 && CP.nativeCoords.y <= 0) transX = 15 - 2, transY = -25 + 5;
-              if(CP.nativeCoords.x >= 0 && CP.nativeCoords.y <= 0) transX = -15 - 65, transY = -25 + 6;
+              if(CP.nativeParameter.coord.x <= 0 && CP.nativeParameter.coord.y >= 0) transX = 15, transY = 25 + 1;
+              if(CP.nativeParameter.coord.x >= 0 && CP.nativeParameter.coord.y >= 0) transX = -15 - 63, transY = 25+1;
+              if(CP.nativeParameter.coord.x <= 0 && CP.nativeParameter.coord.y <= 0) transX = 15 - 2, transY = -25 + 5;
+              if(CP.nativeParameter.coord.x >= 0 && CP.nativeParameter.coord.y <= 0) transX = -15 - 65, transY = -25 + 6;
              
             
               ctx.fillText(
-              "(" + CP.nativeCoords.x.toFixed(2) + 
-              "," + CP.nativeCoords.y.toFixed(2) + ")", 
+              "(" + CP.nativeParameter.coord.x.toFixed(2) + 
+              "," + CP.nativeParameter.coord.y.toFixed(2) + ")", 
               x + transX ,  y + transY);
               
               ctx.fill();

@@ -18,6 +18,8 @@ import { Card } from "./ui/card";
 import { Field, FieldContent, FieldLabel } from "./ui/field";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuSubTrigger, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import ArcPoseIcon from "@/assets/ArcPoseIcon.svg";
+
 
 interface PathControlProps {
   poses: Pose[];
@@ -83,6 +85,13 @@ export default function PathControls({
         e.target.value = final.toString();
       }
     }
+  }
+
+  function handleNumberInput(e:React.ChangeEvent<HTMLInputElement>){
+    const parsed = parseFloat(e.target.value)
+    let final = parsed;
+    if(isNaN(parsed))final = 0;
+    return final;
   }
 
   const scrollToSection = (id: string) => {
@@ -297,8 +306,8 @@ export default function PathControls({
                                             :
                                             <div className="flex flex-row mt-1">
                                               <DropdownMenu modal={false}>
-                                                <DropdownMenuTrigger className="mr-3 bg-transparent hover:bg-transparent p-0 h-auto">
-                                                  <ArrowUp className="h-4 w-4 text-brand-primary" color="#00cafc" />
+                                                <DropdownMenuTrigger className="mr-2 -ml-1 -mt-0.5 bg-transparent hover:bg-transparent p-0 h-auto">
+                                                   <ArcPoseIcon className= "size-4 text-[#00cafc]"/>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent>
                                                   <DropdownMenuGroup>
@@ -310,14 +319,16 @@ export default function PathControls({
                                                     onSelect={(e) => e.preventDefault()}>
                                                       Arc Pose
                                                     </DropdownMenuCheckboxItem>
-                                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                                    <DropdownMenuItem 
+                                                    onSelect={(e) => e.preventDefault()}
+                                                    onPointerMove={(e) => e.preventDefault()} 
+                                                    onPointerLeave={(e) => e.preventDefault()}
+                                                    >
                                                       <Input
                                                         value={controlPoint.nativeParameter?.radius ?? 0}
                                                         onChange={(e)=>{
-                                                          const parsed = parseFloat(e.target.value)
-                                                          let final = parsed;
-                                                          if(isNaN(parsed)) final = 0;
-                                                          updateNativePoint(path.id,controlPoint.id,{radius:final})
+                                                          
+                                                          updateNativePoint(path.id,controlPoint.id,{radius:handleNumberInput(e)})
                                                         }}
                                                       />
                                                     </DropdownMenuItem>
@@ -326,18 +337,14 @@ export default function PathControls({
                                               </DropdownMenu>
                                             <div className="mt-1.25 mr-0.5">X:</div>
                                             <Input
-                                             type="number"
                                              placeholder="X"
                                              min={-70.75}
                                              max={70.75}
                                              step={0.1}
-                                             value={controlPoint.nativeParameter?.coord.x.toFixed(2)}
+                                             value={controlPoint.nativeParameter?.coord.x}
                                              onChange={(e)=>{
-                                                const parsed = parseInt(e.target.value)
-                                                let final = parsed;
-                                                if(isNaN(parsed)) final = 0;
                                                 updateNativePoint(path.id,controlPoint.id,{
-                                                  coord:{x:final,y:controlPoint.nativeParameter?.coord.y ?? 0}
+                                                  coord:{x:handleNumberInput(e),y:controlPoint.nativeParameter?.coord.y ?? 0}
                                                 })
                                              }}
                                              onBlur={(e)=>handleInputBlur(e,-70.75,70.75)}
@@ -345,18 +352,13 @@ export default function PathControls({
                                             />
                                             <div className=" ml-1.5 mr-0.5 mt-1.25">Y:</div>
                                             <Input
-                                              type="number"
                                               placeholder="Y"
                                               min={-70.75}
                                               max={70.75}
-                                              step={0.1}
-                                              value={controlPoint.nativeParameter?.coord.y.toFixed(2)}
+                                              value={controlPoint.nativeParameter?.coord.y}
                                               onChange={(e)=>{
-                                                const parsed = parseInt(e.target.value)
-                                                let final = parsed;
-                                                if(isNaN(parsed)) final = 0;
                                                 updateNativePoint(path.id,controlPoint.id,{
-                                                  coord:{y:final,x:controlPoint.nativeParameter?.coord.x ?? 0}
+                                                  coord:{y:handleNumberInput(e),x:controlPoint.nativeParameter?.coord.x ?? 0}
                                                 })
                                               }}
                                               onBlur={(e)=>handleInputBlur(e,-70.75,70.75)}
@@ -550,12 +552,7 @@ export default function PathControls({
                                     placeholder="Offset Angle"
                                     value={path.interpolation.tangentialParameter?.customOffset ?? 0}
                                     onChange={(e) => {
-                                      const parsed = parseFloat(e.target.value)
-                                      let final = parsed;
-
-                                      if (isNaN(parsed)) final = 0;
-                                      if (parsed === null || isNaN(parsed) || parsed === undefined) final = 0;
-                                      updateTangential(path.id, { customOffset: final })
+                                      updateTangential(path.id, { customOffset: handleNumberInput(e)})
                                     }}
                                     onBlur={(e) => handleInputBlur(e, -180, 180)}
                                   />
@@ -639,12 +636,8 @@ export default function PathControls({
                                           placeholder="Constant Angle"
                                           value={path.interpolation.constantParameter?.heading ?? 0}
                                           onChange={(e) => {
-                                            const parsed = parseFloat(e.target.value)
-                                            let final = parsed;
-      
-                                            if (isNaN(parsed)) final = 0;
-                                            if (parsed === null || isNaN(parsed) || parsed === undefined) final = 0;
-                                            updateConstant(path.id,{heading:final})
+                                            
+                                            updateConstant(path.id,{heading:handleNumberInput(e)})
                                           }}
                                           onBlur={(e) => handleInputBlur(e, -180, 180)}
                                         />
@@ -668,11 +661,9 @@ export default function PathControls({
                                       className="w-full text-center grow  border-none"
                                       value={path.interpolation.smoothToEndParameter?.[0] ?? 0}
                                       onChange={(e)=>{
-                                        const parsed = parseInt(e.target.value)
-                                        let final = parsed;
-                                        if(isNaN(parsed)) final = 0;
+                                        
                                         updateInterpolation(path.id,{smoothToEndParameter:[
-                                          final,
+                                          handleNumberInput(e),
                                           path.interpolation.smoothToEndParameter?.[1] ?? 0
                                         ]})
                                       }}
@@ -690,14 +681,11 @@ export default function PathControls({
                                       min={-180}
                                       max={180}
                                       className="w-full text-center grow  border-none"
-                                      value={path.interpolation.smoothToEndParameter?.[0] ?? 0}
+                                      value={path.interpolation.smoothToEndParameter?.[1] ?? 0}
                                       onChange={(e)=>{
-                                        const parsed = parseInt(e.target.value)
-                                        let final = parsed;
-                                        if(isNaN(parsed)) final = 0;
                                         updateInterpolation(path.id,{smoothToEndParameter:[
-                                          path.interpolation.smoothToEndParameter?.[0] ?? 0,
-                                          final
+                                          path.interpolation.smoothToEndParameter?.[1] ?? 0,
+                                          handleNumberInput(e)
                                         ]})
                                       }}
                                       onBlur={(e)=>handleInputBlur(e,-180,180)}
@@ -747,10 +735,7 @@ export default function PathControls({
                                               max={1}
                                               value={node.s}
                                               onChange={(e)=>{
-                                                const parsed = parseFloat(e.target.value)
-                                                let final = parsed;
-                                                if(isNaN(parsed) || parsed === undefined) final = 0;
-                                                updateNode(path.id,node.id,{s:final})
+                                                updateNode(path.id,node.id,{s:handleNumberInput(e)})
                                               }}
                                               onBlur={(e)=>handleInputBlur(e,0,1)}
                                               placeholder="S" />
@@ -762,10 +747,7 @@ export default function PathControls({
                                               max={180}
                                               value={node.angle}
                                               onChange={(e)=>{
-                                                const parsed = parseFloat(e.target.value)
-                                                let final = parsed;
-                                                if(isNaN(parsed) || parsed === undefined) final = 0;
-                                                updateNode(path.id,node.id,{angle:final})
+                                                updateNode(path.id,node.id,{angle:handleNumberInput(e)})
                                               }}
                                               onBlur={(e)=>handleInputBlur(e,-180,180)}
                                               placeholder="Angle"/>

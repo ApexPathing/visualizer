@@ -26,7 +26,7 @@ export default function Home() {
     addExternalControlPoint,
     addNativeControlPoint,
     updateControlPoint,
-    updateNativeCoords,
+    updateNativePoint,
     deleteControlPoint,
     addCallback,
     updateCallback,
@@ -89,6 +89,7 @@ export default function Home() {
           setCurrentPathIndex={setCurrentPathIndex}
           deletePose={deletePose}
           updateControlPoint={updateControlPoint}
+          updateNativePoint={updateNativePoint}
           />
         </ResizablePanel>
         <ResizableHandle withHandle />
@@ -119,7 +120,7 @@ export default function Home() {
                 deleteNode={deleteNode}
                 updateConstant={updateConstant}
                 setReRenderCanvas={setReRenderCanvas}
-                updateNativeCoords={updateNativeCoords}
+                updateNativePoint={updateNativePoint}
               />
             </span>
           </div>

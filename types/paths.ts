@@ -10,12 +10,15 @@ interface ControlPoint {
   poseId: number | null // ID of the pose this control point is associated with
   pathId: number | null // ID of the path this control point is associated with
   isNative: boolean
-  nativeCoords?: Vector
+  nativeParameter?: NativeControlPoint
 }
 
-interface nativeControlPoint{
+
+interface NativeControlPoint{
   id:number
   coord:Vector
+  arcPose:boolean
+  radius:number
 }
 
 
