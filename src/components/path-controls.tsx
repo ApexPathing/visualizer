@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button";
 
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { ChevronDown, CircleMinus, CirclePlus, GripVertical, Plus } from "lucide-react";
+import { ArrowUp, ArrowUpNarrowWide, ChevronDown, ChevronUp, CircleMinus, CirclePlus, GripVertical, Plus, Upload } from "lucide-react";
 import { Input } from "./ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "./ui/combobox";
@@ -17,6 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Card } from "./ui/card";
 import { Field, FieldContent, FieldLabel } from "./ui/field";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuSubTrigger, DropdownMenuTrigger } from "./ui/dropdown-menu";
 
 interface PathControlProps {
   poses: Pose[];
@@ -42,7 +43,7 @@ interface PathControlProps {
   deleteNode: (pathId: number, nodeId: number) => void
   updateConstant: (pathId: number, updatedFields: Partial<ConstantParameter>) => void
   setReRenderCanvas: Dispatch<SetStateAction<boolean>>
-  updateNativeCoords: (pathId: number, CPID: number, updatedFields: Partial<Vector>) => void
+  updateNativePoint: (pathId: number, CPID: number, updatedFields: Partial<NativeControlPoint>) => void
 }
 
 export default function PathControls({
@@ -69,7 +70,7 @@ export default function PathControls({
   deleteNode,
   updateConstant,
   setReRenderCanvas,
-  updateNativeCoords
+  updateNativePoint
 }: PathControlProps) {
 
   //copied from Dylan's code in pose-controls, thanks Dylan!
@@ -95,14 +96,16 @@ export default function PathControls({
 
     paths.forEach((path)=>{
       path.controlPoints.forEach((CP)=>{
-        if(CP.isNative && CP.nativeCoords){
-          if(CP.nativeCoords.x > 70.75) updateNativeCoords(path.id,CP.id,{x:70.75})
-          else if(CP.nativeCoords.x < -70.75)updateNativeCoords(path.id,CP.id,{x:-70.75})
+        if(CP.isNative && CP.nativeParameter?.coord){
+          if(CP.nativeParameter.coord.x > 70.75) 
+            updateNativePoint(path.id,CP.id,{coord:{x:70.75,y:CP.nativeParameter.coord.y}})
+          else if(CP.nativeParameter.coord.x < -70.75)
+            updateNativePoint(path.id,CP.id,{coord:{x:70.75,y:CP.nativeParameter.coord.y}})
 
-          if(CP.nativeCoords.y > 70.75) updateNativeCoords(path.id,CP.id,{y:70.75})
-          else if(CP.nativeCoords.y < -70.75)updateNativeCoords(path.id,CP.id,{y:-70.75})
-
-
+          if(CP.nativeParameter.coord.y > 70.75) 
+            updateNativePoint(path.id,CP.id,{coord:{y:70.75,x:CP.nativeParameter.coord.x}})
+          else if(CP.nativeParameter.coord.y < -70.75)
+            updateNativePoint(path.id,CP.id,{coord:{y:-70.75,x:CP.nativeParameter.coord.x}})
         }
       })
     })
@@ -292,21 +295,49 @@ export default function PathControls({
                                             </Combobox>
                                             
                                             :
-                                            <div className="flex flex-row mt-1 ">
-
+                                            <div className="flex flex-row mt-1">
+                                              <DropdownMenu modal={false}>
+                                                <DropdownMenuTrigger className="mr-3 bg-transparent hover:bg-transparent p-0 h-auto">
+                                                  <ArrowUp className="h-4 w-4 text-brand-primary" color="#00cafc" />
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent>
+                                                  <DropdownMenuGroup>
+                                                    <DropdownMenuCheckboxItem 
+                                                    checked = {controlPoint.nativeParameter?.arcPose}
+                                                    onCheckedChange={(checked)=>{
+                                                      updateNativePoint(path.id,controlPoint.id,{arcPose:checked})
+                                                    }} 
+                                                    onSelect={(e) => e.preventDefault()}>
+                                                      Arc Pose
+                                                    </DropdownMenuCheckboxItem>
+                                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                                      <Input
+                                                        value={controlPoint.nativeParameter?.radius ?? 0}
+                                                        onChange={(e)=>{
+                                                          const parsed = parseFloat(e.target.value)
+                                                          let final = parsed;
+                                                          if(isNaN(parsed)) final = 0;
+                                                          updateNativePoint(path.id,controlPoint.id,{radius:final})
+                                                        }}
+                                                      />
+                                                    </DropdownMenuItem>
+                                                  </DropdownMenuGroup>
+                                                </DropdownMenuContent>
+                                              </DropdownMenu>
                                             <div className="mt-1.25 mr-0.5">X:</div>
                                             <Input
                                              type="number"
                                              placeholder="X"
                                              min={-70.75}
                                              max={70.75}
-                                             value={controlPoint.nativeCoords?.x.toFixed(3)}
+                                             step={0.1}
+                                             value={controlPoint.nativeParameter?.coord.x.toFixed(2)}
                                              onChange={(e)=>{
                                                 const parsed = parseInt(e.target.value)
                                                 let final = parsed;
                                                 if(isNaN(parsed)) final = 0;
-                                                updateControlPoint(path.id,path.controlPoints,controlPoint.id,{
-                                                  nativeCoords:{x:final,y:controlPoint.nativeCoords?.y ?? 0}
+                                                updateNativePoint(path.id,controlPoint.id,{
+                                                  coord:{x:final,y:controlPoint.nativeParameter?.coord.y ?? 0}
                                                 })
                                              }}
                                              onBlur={(e)=>handleInputBlur(e,-70.75,70.75)}
@@ -318,20 +349,19 @@ export default function PathControls({
                                               placeholder="Y"
                                               min={-70.75}
                                               max={70.75}
-                                              value={controlPoint.nativeCoords?.y.toFixed(3)}
+                                              step={0.1}
+                                              value={controlPoint.nativeParameter?.coord.y.toFixed(2)}
                                               onChange={(e)=>{
                                                 const parsed = parseInt(e.target.value)
                                                 let final = parsed;
                                                 if(isNaN(parsed)) final = 0;
-                                                updateControlPoint(path.id,path.controlPoints,controlPoint.id,{
-                                                  nativeCoords:{x:controlPoint.nativeCoords?.x ?? 0,y:final}
+                                                updateNativePoint(path.id,controlPoint.id,{
+                                                  coord:{y:final,x:controlPoint.nativeParameter?.coord.x ?? 0}
                                                 })
                                               }}
                                               onBlur={(e)=>handleInputBlur(e,-70.75,70.75)}
                                               className="min-w-20 transition-colors focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
                                             />
-
-
                                             </div>
                                             }
                                           </div>

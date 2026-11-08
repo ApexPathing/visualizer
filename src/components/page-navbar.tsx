@@ -141,7 +141,7 @@ export default function PageNavbar() {
       </div>
 
       <div>
-          <Dialog>
+          <Dialog modal={false}>
             <DialogTrigger>
               
               <SettingsIcon/>
