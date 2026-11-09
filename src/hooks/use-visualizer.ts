@@ -50,6 +50,14 @@ export const Paths = () => {
   const addPath = () => {
     setPaths((prevPaths) => {
       const nextNumber = prevPaths.length + 1;
+      let firstPose:ControlPoint | null = null;
+      if(prevPaths.length > 0){
+        //make sure the previous path has control points
+        const prevPath = prevPaths.at(-1)
+        if(prevPath && prevPath.controlPoints.length > 0 ){
+          firstPose = prevPath.controlPoints.at(-1) as ControlPoint
+        }
+      }
     
       const newPath: Path = {
         id: Date.now(),
@@ -59,6 +67,7 @@ export const Paths = () => {
         holonomic: true,
         color: "#2563eb",
         open: " ",
+        firstPose:firstPose,
 
 
         interpolation:{
@@ -107,9 +116,11 @@ export const Paths = () => {
       poseId:null,
       pathId:pathId,
       isNative:true,
-      nativeCoords:{
-        x:0,
-        y:0
+      nativeParameter:{
+        id:Date.now(), // id might be useless lowk
+        coord:{x:0,y:0},
+        arcPose:false,
+        radius:0
       }
     }
 
@@ -124,13 +135,25 @@ export const Paths = () => {
     );
     updatePath(pathId, { controlPoints: updatedPoints });
   };
-  const updateNativeCoords = (pathId:number,CPID:number,updatedFields:Partial<Vector>)=>{
-     const path = paths.find((p)=>p.id==pathId)
-     if(path){
-      path.controlPoints.forEach((CP)=> CP.id == CPID &&
-       updateControlPoint(pathId,path.controlPoints,CPID,{nativeCoords:{...CP.nativeCoords ?? {x:0,y:0}, ...updatedFields}}))
+  
+  const updateNativePoint = (pathId: number, CPID: number, updatedFields: Partial<NativeControlPoint>) => {
+    const path = paths.find((p) => p.id === pathId);
+    const controlPoints = path?.controlPoints;
+    
+    if (controlPoints){
+  
+      const CP = controlPoints.find((cp) => cp.id === CPID);
+      if (CP){
+    
+        const updatedNative: NativeControlPoint = {
+          ...CP.nativeParameter,
+          ...updatedFields,
+        } as NativeControlPoint;
+      
+        updateControlPoint(pathId, controlPoints, CPID, { nativeParameter: updatedNative });
+      }
     }
-  }
+  };
 
   const deleteControlPoint = (pathId: number, currentPoints: ControlPoint[], controlPointId: number) => {
     const filteredPoints = currentPoints.filter((point) => point.id !== controlPointId);
@@ -247,7 +270,7 @@ export const Paths = () => {
     deletePath,
     addExternalControlPoint,
     updateControlPoint,
-    updateNativeCoords,
+    updateNativePoint,
     deleteControlPoint,
     addCallback,
     addNativeControlPoint,
