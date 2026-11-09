@@ -57,11 +57,14 @@ export default function DrawPaths({
   const currentPathIndexRef = useRef(currentPathIndex);
   const isDraggingNativeRef = useRef(false);
   const isDraggingPoseRef = useRef(false);
+  const pathsRef = useRef(paths);
+  pathsRef.current = paths;
 
 
   useEffect(() => {
     currentShapeIndexRef.current = currentShapeIndex;
     currentPathIndexRef.current = currentPathIndex;
+    
   }, [currentShapeIndex,currentPathIndex]);
 
   const shapes:poseShape[] = []
@@ -85,7 +88,7 @@ export default function DrawPaths({
 
     let natives:ControlPoint[] = []
       
-    paths.forEach((path)=>{
+    pathsRef.current.forEach((path)=>{
       natives.push(path.firstPose)
       path.controlPoints.forEach((CP)=>{
         if(CP.isNative) natives.push(CP)
@@ -170,7 +173,7 @@ export default function DrawPaths({
     
       
 
-      paths.forEach((path, i) => {
+      pathsRef.current.forEach((path, i) => {
         if (is_mouse_in_path(startX, startY, new bsplineClass(path, localPoses), path)) {
           setCurrentPathIndex(i);
         }
@@ -200,7 +203,7 @@ export default function DrawPaths({
       }else if(isDraggingNativeRef.current) {
         const currentNative = natives.find((CP)=>CP.id == currentNativeIdRef.current)
         
-        paths.forEach((path)=>{
+        pathsRef.current.forEach((path)=>{
           path.controlPoints.forEach((CP)=>{
             if(CP.id == currentNative?.id){
               updateNativePoint(path.id,CP.id,{coord:{
@@ -244,7 +247,7 @@ export default function DrawPaths({
 
       const currentNative = natives.find((CP)=>CP.id == currentNativeIdRef.current)
       if(currentNative)  {
-        paths.forEach((path)=>{
+        pathsRef.current.forEach((path)=>{
           path.controlPoints.forEach((CP)=>{
             if(CP.id == currentNative.id){
               updateNativePoint(path.id,CP.id,{coord:{
@@ -394,8 +397,8 @@ export default function DrawPaths({
         
       }) 
 
-      //paths drawing using bspline class
-      paths.forEach((path) => {
+      //pathsRef.current drawing using bspline class
+      pathsRef.current.forEach((path) => {
         const spline = new bsplineClass(path, localPoses);
 
         const points: Vector[] = [];
@@ -524,7 +527,7 @@ export default function DrawPaths({
         } 
       })
 
-      paths.forEach((path)=>{ 
+      pathsRef.current.forEach((path)=>{ 
         path.controlPoints.forEach((CP)=>{
           if(CP.isNative && CP.nativeParameter){
             if(currentNativeIdRef.current == CP.id){
@@ -589,7 +592,7 @@ export default function DrawPaths({
 
       
       
-      paths.forEach((path)=>{ 
+      pathsRef.current.forEach((path)=>{ 
         path.controlPoints.forEach((CP)=>{
           if(CP.isNative && CP.nativeParameter){
             if(currentNativeIdRef.current == CP.id){
@@ -678,7 +681,7 @@ export default function DrawPaths({
    
     
   
-  }, [poses, paths, imageLoaded,reRender]);
+  }, [poses, paths,pathsRef, imageLoaded,reRender]);
 
 
   return (
