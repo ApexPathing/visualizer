@@ -23,6 +23,8 @@ export default function Home() {
     addPath,
     updatePath,
     deletePath,
+    updateFirstPose,
+    updateEndPose,
     addExternalControlPoint,
     addNativeControlPoint,
     updateControlPoint,
@@ -57,10 +59,10 @@ export default function Home() {
   
 
   return (
-    <div className="flex flex-row h-[calc(100vh-104px)]">
+    <div className="flex flex-col h-[calc(100vh-104px)]">
       <ResizablePanelGroup
         orientation="horizontal"
-        className="min-h-full max-w-md rounded-lg border min-w-full"
+        className="max-h max-w-md rounded-lg border min-w-full"
         onLayoutChanged={()=>setReRenderCanvas(!reRenderCanvas)}
       >
         <ResizablePanel maxSize="1000px" minSize="300px" collapsible>
@@ -90,6 +92,9 @@ export default function Home() {
           deletePose={deletePose}
           updateControlPoint={updateControlPoint}
           updateNativePoint={updateNativePoint}
+          updatePath={updatePath}
+          updateFirstPose={updateFirstPose}
+          updateEndPose={updateEndPose}
           />
         </ResizablePanel>
         <ResizableHandle withHandle />
@@ -121,11 +126,17 @@ export default function Home() {
                 updateConstant={updateConstant}
                 setReRenderCanvas={setReRenderCanvas}
                 updateNativePoint={updateNativePoint}
+                updateFirstPose={updateFirstPose}
+                updateEndPose={updateEndPose}
               />
             </span>
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>
+
+      {/* <div className="rounded-lg border-border mt-4 flex w-full h-8 border items-center justify-between px-6">
+        HI
+      </div> */}
     </div>
   );
 }

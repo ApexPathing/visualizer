@@ -4,6 +4,7 @@ import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { bsplineClass } from '@/lib/bsplineClass';
 import { Settings } from "@/hooks/use-visualizer";
 import { Cpu } from "lucide-react";
+import PlaybackControls from "./playback-controls";
 
 interface PathDrawProps {
   poses: Pose[];
@@ -17,6 +18,9 @@ interface PathDrawProps {
   deletePose: (id: number) => void
   updateControlPoint: (pathId: number, currentPoints: ControlPoint[], controlPointId: number, updatedFields: Partial<ControlPoint>) => void
   updateNativePoint: (pathId: number, CPID: number, updatedFields: Partial<NativeControlPoint>) => void
+  updatePath: (id: number, updatedFields: Partial<Path>) => void
+  updateFirstPose: (pathId: number, updatedFields: Partial<NativeControlPoint>) => void
+  updateEndPose: (pathId: number, updatedFields: Partial<NativeControlPoint>) => void
 }
 
 export default function DrawPaths({
@@ -29,7 +33,10 @@ export default function DrawPaths({
   currentPathIndex,
   setCurrentPathIndex,
   updateControlPoint,
-  updateNativePoint
+  updateNativePoint,
+  updatePath,
+  updateFirstPose,
+  updateEndPose
 }: PathDrawProps) {
 
 
@@ -48,16 +55,19 @@ export default function DrawPaths({
   const [imageLoaded, setImageLoaded] = useState(false);
   const currentShapeIndexRef = useRef(currentShapeIndex);
   const currentPathIndexRef = useRef(currentPathIndex);
+  const isDraggingNativeRef = useRef(false);
+  const isDraggingPoseRef = useRef(false);
+  const pathsRef = useRef(paths);
+  pathsRef.current = paths;
 
 
   useEffect(() => {
     currentShapeIndexRef.current = currentShapeIndex;
     currentPathIndexRef.current = currentPathIndex;
+    
   }, [currentShapeIndex,currentPathIndex]);
 
   const shapes:poseShape[] = []
-  let isDraggingPose = false;
-  let isDraggingNative = false;
   let startX:number;
   let startY:number;
 
@@ -78,10 +88,12 @@ export default function DrawPaths({
 
     let natives:ControlPoint[] = []
       
-    paths.forEach((path)=>{
+    pathsRef.current.forEach((path)=>{
+      natives.push(path.firstPose)
       path.controlPoints.forEach((CP)=>{
         if(CP.isNative) natives.push(CP)
       })
+      natives.push(path.endPose)
     })
     const localPoses = poses.map(pose => ({ ...pose }));
 
@@ -113,7 +125,7 @@ export default function DrawPaths({
 
 
     let is_mouse_in_path = (x:number,y:number,spline:bsplineClass,path:Path)=>{
-      const numPoints = path.controlPoints.length * 200;
+      const numPoints = (path.controlPoints.length + 2)* 200;
 
       const tolerance = 5;
 
@@ -123,7 +135,6 @@ export default function DrawPaths({
 
         const cpX = centerX + (pt.x * scaleX);
         const cpY = centerY - (pt.y * scaleY);
-
         const squaredDist = (x - cpX) ** 2 + (y - cpY) ** 2;
         if (squaredDist <= tolerance**2) {
           return true;
@@ -146,14 +157,15 @@ export default function DrawPaths({
         const py = centerY - c.y * scaleY;
         if (is_mouse_in_vector(startX, startY, { x: px, y: py })) {
           currentNativeIdRef.current = natives[i].id;
-          isDraggingNative = true;
+          isDraggingNativeRef.current = true;
           return;
         } 
       }
+    
       
       for (let i = 0; i < shapes.length; i++) {
         if (is_mouse_in_pose(startX, startY, shapes[i])) {
-          isDraggingPose = true;
+          isDraggingPoseRef.current = true;
           setCurrentShapeIndex(i);
           break;
         }
@@ -161,7 +173,7 @@ export default function DrawPaths({
     
       
 
-      paths.forEach((path, i) => {
+      pathsRef.current.forEach((path, i) => {
         if (is_mouse_in_path(startX, startY, new bsplineClass(path, localPoses), path)) {
           setCurrentPathIndex(i);
         }
@@ -169,7 +181,7 @@ export default function DrawPaths({
     };
 
     let mouse_up = (event: MouseEvent) => {
-      if(isDraggingPose ){
+      if(isDraggingPoseRef.current ){
         event.preventDefault();
         if(currentShapeIndexRef.current != -1){
           let current_shape = shapes[currentShapeIndexRef.current]
@@ -184,14 +196,14 @@ export default function DrawPaths({
           ctx.globalAlpha = 1;
         
           
-          isDraggingPose = false;
+          isDraggingPoseRef.current = false;
           
         }
        
-      }else if(isDraggingNative) {
+      }else if(isDraggingNativeRef.current) {
         const currentNative = natives.find((CP)=>CP.id == currentNativeIdRef.current)
         
-        paths.forEach((path)=>{
+        pathsRef.current.forEach((path)=>{
           path.controlPoints.forEach((CP)=>{
             if(CP.id == currentNative?.id){
               updateNativePoint(path.id,CP.id,{coord:{
@@ -199,8 +211,18 @@ export default function DrawPaths({
                 y:Number(currentNative.nativeParameter?.coord.y.toFixed(3)) ?? 0}})
               }
           })
+          if(path.firstPose.id == currentNative?.id){
+            updateFirstPose(path.id,{coord:{
+              x:Number(currentNative.nativeParameter?.coord.x.toFixed(3)) ?? 0,
+              y:Number(currentNative.nativeParameter?.coord.y.toFixed(3)) ?? 0}})
+          }
+          if(path.endPose.id == currentNative?.id){
+            updateEndPose(path.id,{coord:{
+              x:Number(currentNative.nativeParameter?.coord.x.toFixed(3)) ?? 0,
+              y:Number(currentNative.nativeParameter?.coord.y.toFixed(3)) ?? 0}})
+          }
         })
-        isDraggingNative = false;
+        isDraggingNativeRef.current = false;
       }
       else{
         return
@@ -209,7 +231,7 @@ export default function DrawPaths({
 
 
     let mouse_out = (event: MouseEvent) => {
-      if(!isDraggingPose && !isDraggingNative){
+      if(!isDraggingPoseRef.current && !isDraggingNativeRef.current){
         return;
       }
       event.preventDefault();
@@ -225,7 +247,7 @@ export default function DrawPaths({
 
       const currentNative = natives.find((CP)=>CP.id == currentNativeIdRef.current)
       if(currentNative)  {
-        paths.forEach((path)=>{
+        pathsRef.current.forEach((path)=>{
           path.controlPoints.forEach((CP)=>{
             if(CP.id == currentNative.id){
               updateNativePoint(path.id,CP.id,{coord:{
@@ -233,11 +255,21 @@ export default function DrawPaths({
                 y:Number(currentNative.nativeParameter?.coord.y.toFixed(3)) ?? 0}})
               }
           })
+          if(path.firstPose.id == currentNative.id){
+            updateFirstPose(path.id,{coord:{
+              x:Number(currentNative.nativeParameter?.coord.x.toFixed(3)) ?? 0,
+              y:Number(currentNative.nativeParameter?.coord.y.toFixed(3)) ?? 0}})
+          }
+          if(path.endPose.id == currentNative.id){
+            updateEndPose(path.id,{coord:{
+              x:Number(currentNative.nativeParameter?.coord.x.toFixed(3)) ?? 0,
+              y:Number(currentNative.nativeParameter?.coord.y.toFixed(3)) ?? 0}})
+          }
         })
       }
 
-      isDraggingPose = false;
-      isDraggingNative = false;
+      isDraggingPoseRef.current = false;
+      isDraggingNativeRef.current = false;
     };
 
     let mouse_move = (event:MouseEvent) =>{
@@ -246,7 +278,7 @@ export default function DrawPaths({
       
       let mouseX = event.clientX - rect.left;
       let mouseY = event.clientY - rect.top;
-      if(isDraggingPose){
+      if(isDraggingPoseRef.current){
         
 
 
@@ -266,7 +298,8 @@ export default function DrawPaths({
 
         
 
-      }else if(isDraggingNative){
+      }else if(isDraggingNativeRef.current){
+
         let dx = mouseX - startX;
         let dy = mouseY - startY;
 
@@ -364,12 +397,12 @@ export default function DrawPaths({
         
       }) 
 
-      //paths drawing using bspline class
-      paths.forEach((path) => {
+      //pathsRef.current drawing using bspline class
+      pathsRef.current.forEach((path) => {
         const spline = new bsplineClass(path, localPoses);
 
         const points: Vector[] = [];
-        const numPoints = path.controlPoints.length * 200; 
+        const numPoints = (path.controlPoints.length + 2) * 200; 
 
         for (let i = 0; i <= numPoints; i++) {
             const t = i / numPoints; 
@@ -413,7 +446,36 @@ export default function DrawPaths({
             
           }
         })
+
+
+        //draw start pose
+        ctx.beginPath();
+        ctx.fillStyle = path.color;
+        const fX = centerX + ((path.firstPose.nativeParameter?.coord.x ?? 0) * scaleX);
+        const fY = centerY - ((path.firstPose.nativeParameter?.coord.y ?? 0) * scaleY);
+        ctx.arc(fX, fY, 3, 0, 2 * Math.PI); 
+        ctx.fill();
+        ctx.beginPath();
+
+        ctx.arc(fX, fY, 7, 0, 2 * Math.PI);  
+        ctx.stroke(); 
+        
+
+        //draw end pose
+        ctx.beginPath();
+        ctx.fillStyle = path.color;
+        const eX = centerX + ((path.endPose.nativeParameter?.coord.x ?? 0) * scaleX);
+        const eY = centerY - ((path.endPose.nativeParameter?.coord.y ?? 0) * scaleY);
+        ctx.arc(eX, eY, 3, 0, 2 * Math.PI); 
+        ctx.fill();
+        ctx.beginPath();
+
+        ctx.arc(eX, eY, 7, 0, 2 * Math.PI);  
+        ctx.stroke(); 
       });
+      
+
+      
 
      
       
@@ -465,7 +527,7 @@ export default function DrawPaths({
         } 
       })
 
-      paths.forEach((path)=>{ 
+      pathsRef.current.forEach((path)=>{ 
         path.controlPoints.forEach((CP)=>{
           if(CP.isNative && CP.nativeParameter){
             if(currentNativeIdRef.current == CP.id){
@@ -486,9 +548,51 @@ export default function DrawPaths({
             }
           }
         })
-      })
+
+        if(currentNativeIdRef.current == path.firstPose.id){
+          ctx.beginPath();
+          ctx.fillStyle = "rgba(255,0,0,0.4)";
+          const FP = path.firstPose.nativeParameter?.coord;
+          if(FP){
+            const x = centerX + (FP.x * scaleX);
+            const y = centerY - (FP.y * scaleY);
+            let transX = 10,transY = 10;
       
-      paths.forEach((path)=>{ 
+          
+            if(FP.x <= 0 && FP.y >= 0) transX = 10, transY = 10;
+            if(FP.x >= 0 && FP.y >= 0) transX = -10 - 75, transY = 10;
+            if(FP.x <= 0 && FP.y <= 0) transX = 10, transY = -10 - 25;
+            if(FP.x >= 0 && FP.y <= 0) transX = -10 - 75, transY = -10 - 25;
+
+            ctx.roundRect(x + transX,y + transY,75,25,10);
+            ctx.fill();
+          }
+        }
+
+        if(currentNativeIdRef.current == path.endPose.id){
+          ctx.beginPath();
+          ctx.fillStyle = "rgba(255,0,0,0.4)";
+          const EP = path.endPose.nativeParameter?.coord;
+          if(EP){
+            const x = centerX + (EP.x * scaleX);
+            const y = centerY - (EP.y * scaleY);
+            let transX = 10,transY = 10;
+      
+          
+            if(EP.x <= 0 && EP.y >= 0) transX = 10, transY = 10;
+            if(EP.x >= 0 && EP.y >= 0) transX = -10 - 75, transY = 10;
+            if(EP.x <= 0 && EP.y <= 0) transX = 10, transY = -10 - 25;
+            if(EP.x >= 0 && EP.y <= 0) transX = -10 - 75, transY = -10 - 25;
+
+            ctx.roundRect(x + transX,y + transY,75,25,10);
+            ctx.fill();
+          }
+        }
+      })
+
+      
+      
+      pathsRef.current.forEach((path)=>{ 
         path.controlPoints.forEach((CP)=>{
           if(CP.isNative && CP.nativeParameter){
             if(currentNativeIdRef.current == CP.id){
@@ -514,6 +618,58 @@ export default function DrawPaths({
             }
           }
         })
+
+        if(currentNativeIdRef.current == path.firstPose.id){
+          
+            ctx.beginPath();
+            ctx.fillStyle = "white";
+            const FP = path.firstPose.nativeParameter?.coord;
+            if(FP){
+              const x = centerX + (FP.x * scaleX);
+              const y = centerY - (FP.y * scaleY);
+              let transX = 10,transY = 10;
+          
+
+              if(FP.x <= 0 && FP.y >= 0) transX = 15, transY = 25 + 1;
+              if(FP.x >= 0 && FP.y >= 0) transX = -15 - 63, transY = 25+1;
+              if(FP.x <= 0 && FP.y <= 0) transX = 15 - 2, transY = -25 + 5;
+              if(FP.x >= 0 && FP.y <= 0) transX = -15 - 65, transY = -25 + 6;
+              
+            
+              ctx.fillText(
+              "(" + FP.x.toFixed(2) + 
+              "," + FP.y.toFixed(2) + ")", 
+              x + transX ,  y + transY);
+              
+              ctx.fill();
+            }
+        }
+
+        if(currentNativeIdRef.current == path.endPose.id){
+          
+            ctx.beginPath();
+            ctx.fillStyle = "white";
+            const EP = path.endPose.nativeParameter?.coord;
+            if(EP){
+              const x = centerX + (EP.x * scaleX);
+              const y = centerY - (EP.y * scaleY);
+              let transX = 10,transY = 10;
+          
+
+              if(EP.x <= 0 && EP.y >= 0) transX = 15, transY = 25 + 1;
+              if(EP.x >= 0 && EP.y >= 0) transX = -15 - 63, transY = 25+1;
+              if(EP.x <= 0 && EP.y <= 0) transX = 15 - 2, transY = -25 + 5;
+              if(EP.x >= 0 && EP.y <= 0) transX = -15 - 65, transY = -25 + 6;
+              
+            
+              ctx.fillText(
+              "(" + EP.x.toFixed(2) + 
+              "," + EP.y.toFixed(2) + ")", 
+              x + transX ,  y + transY);
+              
+              ctx.fill();
+            }
+        }
       })
 
     }
@@ -525,32 +681,35 @@ export default function DrawPaths({
    
     
   
-  }, [poses, paths, imageLoaded,reRender]);
+  }, [poses, paths,pathsRef, imageLoaded,reRender]);
 
 
   return (
     
     <div className="flex h-full w-full items-center justify-center overflow-hidden min-h-0 min-w-0">
 
-      <div className="relative flex max-h-full max-w-full min-h-0 min-w-0 items-center justify-center"
-      style={{ maxWidth: '735px', maxHeight: '735px' }}
+      <div className="relative flex flex-col max-h-full max-w-full min-h-0 min-w-0 items-center justify-center">
+        <div
+          style={{ maxWidth: '710px', maxHeight: '687px' }}
         >
-        <img
-          ref={imageRef}
-          src={image}
-          className="block aspect-square max-h-full max-w-full w-auto h-auto object-contain select-none pointer-events-none"
-          alt="Field"
-          draggable="false"
-          id="field"
-          unselectable = "on"
-          onLoad={() => setImageLoaded(true)}
-        />
-        
-        <canvas
-          ref={canvasRef}
-          id="field-canvas"
-          className="absolute inset-0 w-full h-full "
-        />
+          <img
+            ref={imageRef}
+            src={image}
+            className="block aspect-square max-h-full max-w-full w-auto h-auto object-contain select-none pointer-events-none"
+            alt="Field"
+            draggable="false"
+            id="field"
+            unselectable = "on"
+            onLoad={() => setImageLoaded(true)}
+          />
+          
+          <canvas
+            ref={canvasRef}
+            id="field-canvas"
+            className="absolute inset-0 w-full h-full "
+          />
+        </div>
+        <PlaybackControls/> 
       </div>
       
     </div>

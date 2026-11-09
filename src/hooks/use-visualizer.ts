@@ -50,12 +50,41 @@ export const Paths = () => {
   const addPath = () => {
     setPaths((prevPaths) => {
       const nextNumber = prevPaths.length + 1;
-      let firstPose:ControlPoint | null = null;
+      let firstPose:ControlPoint = {
+        id:Date.now(),
+        poseId:null,
+        pathId:null,
+        isNative:true,
+        nativeParameter:{
+          id:Date.now(),
+          coord:{
+            x:0,
+            y:0
+          },
+          arcPose:false,
+          radius:0
+        }
+      };
+      let endPose:ControlPoint = {
+        id:Date.now() + 1, // both firstPose and endPose are created at the same time. so I add 1 to it
+        poseId:null,
+        pathId:null,
+        isNative:true,
+        nativeParameter:{
+          id:Date.now(),
+          coord:{
+            x:0,
+            y:0
+          },
+          arcPose:false,
+          radius:0
+        }
+      };
       if(prevPaths.length > 0){
         //make sure the previous path has control points
         const prevPath = prevPaths.at(-1)
-        if(prevPath && prevPath.controlPoints.length > 0 ){
-          firstPose = prevPath.controlPoints.at(-1) as ControlPoint
+        if(prevPath){
+          firstPose = prevPath.endPose;
         }
       }
     
@@ -67,7 +96,8 @@ export const Paths = () => {
         holonomic: true,
         color: "#2563eb",
         open: " ",
-        firstPose:firstPose,
+        firstPose: firstPose,
+        endPose:endPose,
 
 
         interpolation:{
@@ -90,6 +120,36 @@ export const Paths = () => {
       )
     );
   };
+
+  const updateFirstPose = (pathId:number, updatedFields:Partial<NativeControlPoint>)=>{
+    const path = paths.find((path)=> path.id == pathId)
+    if(path && path.firstPose.nativeParameter){
+      const updated:ControlPoint = {
+        ...path.firstPose,
+        nativeParameter:
+        {
+          ...path.firstPose.nativeParameter,
+          ...updatedFields
+        }
+      }
+      updatePath(path.id,{firstPose:updated})
+    }
+  }
+
+  const updateEndPose = (pathId:number, updatedFields:Partial<NativeControlPoint>)=>{
+    const path = paths.find((path)=> path.id == pathId)
+    if(path && path.endPose.nativeParameter){
+      const updated:ControlPoint = {
+        ...path.endPose,
+        nativeParameter:
+        {
+          ...path.endPose.nativeParameter,
+          ...updatedFields
+        }
+      }
+      updatePath(path.id,{endPose:updated})
+    }
+  }
 
   const deletePath = useCallback((id: number) => {
     setPaths((prev) => prev.filter((path) => path.id !== id));
@@ -268,6 +328,8 @@ export const Paths = () => {
     addPath,
     updatePath,
     deletePath,
+    updateFirstPose,
+    updateEndPose,
     addExternalControlPoint,
     updateControlPoint,
     updateNativePoint,
