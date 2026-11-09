@@ -20,11 +20,7 @@ export class bsplineClass {
 
 
         //this is where all of the conversions will happen
-
-
-        //first, make sure the list has a valid amount of control points
-
-        if ((path.controlPoints.length  + 1) < 2) return; // length of control points plus first pose
+    
 
 
 
@@ -39,29 +35,27 @@ export class bsplineClass {
 
         //connect paths
 
-        if(path.firstPose){
-            //can either be a native or pose reference
-
-            if(path.firstPose.isNative && path.firstPose.nativeParameter){
+        //can either be a native or pose reference
+        if(path.firstPose.isNative && path.firstPose.nativeParameter){
+            arcPoseVectors.push({
+                vector:path.firstPose.nativeParameter.coord,
+                arcPose:false,
+                radius:0})
+        }else{
+            //pose reference
+            const pose = fullPoses.find((pose)=>pose.id == path.firstPose?.poseId)
+            if(pose){
                 arcPoseVectors.push({
-                    vector:path.firstPose.nativeParameter.coord,
+                    vector:{
+                        x: pose.x ?? 0,
+                        y: pose.y ?? 0
+                    },
                     arcPose:false,
-                    radius:0})
-            }else{
-                //pose reference
-                const pose = fullPoses.find((pose)=>pose.id == path.firstPose?.poseId)
-                if(pose){
-                    arcPoseVectors.push({
-                        vector:{
-                            x: pose.x ?? 0,
-                            y: pose.y ?? 0
-                        },
-                        arcPose:false,
-                        radius:0
-                    })
-                }
+                    radius:0
+                })
             }
         }
+        
 
         //loop through each control point
 
@@ -95,6 +89,32 @@ export class bsplineClass {
                     })
             }
         })
+
+
+        //add endPose
+
+        
+        //can either be a native or pose reference
+        if(path.endPose.isNative && path.endPose.nativeParameter){
+            arcPoseVectors.push({
+                vector:path.endPose.nativeParameter.coord,
+                arcPose:false,
+                radius:0})
+        }else{
+            //pose reference
+            const pose = fullPoses.find((pose)=>pose.id == path.endPose?.poseId)
+            if(pose){
+                arcPoseVectors.push({
+                    vector:{
+                        x: pose.x ?? 0,
+                        y: pose.y ?? 0
+                    },
+                    arcPose:false,
+                    radius:0
+                })
+            }
+        }
+        
 
 
         //now that our arcPoseVector list has been made, lets do one more loop through in order to add the arcposes

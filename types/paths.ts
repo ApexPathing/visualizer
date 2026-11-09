@@ -58,6 +58,7 @@ interface Path {
   color: string
   open: string
   interpolation: Interpolation
-  firstPose:ControlPoint | null // if its the first path, it doesn't need one so null
+  firstPose:ControlPoint
+  endPose:ControlPoint
 }
 

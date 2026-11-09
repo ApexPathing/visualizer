@@ -46,6 +46,8 @@ interface PathControlProps {
   updateConstant: (pathId: number, updatedFields: Partial<ConstantParameter>) => void
   setReRenderCanvas: Dispatch<SetStateAction<boolean>>
   updateNativePoint: (pathId: number, CPID: number, updatedFields: Partial<NativeControlPoint>) => void
+  updateFirstPose: (pathId: number, updatedFields: Partial<NativeControlPoint>) => void
+  updateEndPose: (pathId: number, updatedFields: Partial<NativeControlPoint>) => void
 }
 
 export default function PathControls({
@@ -72,7 +74,9 @@ export default function PathControls({
   deleteNode,
   updateConstant,
   setReRenderCanvas,
-  updateNativePoint
+  updateNativePoint,
+  updateFirstPose,
+  updateEndPose
 }: PathControlProps) {
 
   //copied from Dylan's code in pose-controls, thanks Dylan!
@@ -103,6 +107,7 @@ export default function PathControls({
     if (!paths[currentPathIndex]) return;
     scrollToSection(`${paths[currentPathIndex].id}`)
 
+    // boundaries
     paths.forEach((path)=>{
       path.controlPoints.forEach((CP)=>{
         if(CP.isNative && CP.nativeParameter?.coord){
@@ -117,20 +122,42 @@ export default function PathControls({
             updateNativePoint(path.id,CP.id,{coord:{y:-70.75,x:CP.nativeParameter.coord.x}})
         }
       })
+      
+      const FP = path.firstPose;
+      if(FP.isNative && FP.nativeParameter?.coord){
+        if(FP.nativeParameter.coord.x > 70.75) 
+          updateFirstPose(path.id,{coord:{x:70.75,y:FP.nativeParameter.coord.y}})
+        else if(FP.nativeParameter.coord.x < -70.75)
+          updateFirstPose(path.id,{coord:{x:70.75,y:FP.nativeParameter.coord.y}})
 
+        if(FP.nativeParameter.coord.y > 70.75) 
+          updateFirstPose(path.id,{coord:{y:70.75,x:FP.nativeParameter.coord.x}})
+        else if(FP.nativeParameter.coord.y < -70.75)
+          updateFirstPose(path.id,{coord:{y:-70.75,x:FP.nativeParameter.coord.x}})
+
+      }
+
+      const EP = path.endPose;
+      if(EP.isNative && EP.nativeParameter?.coord){
+        if(EP.nativeParameter.coord.x > 70.75) 
+          updateEndPose(path.id,{coord:{x:70.75,y:EP.nativeParameter.coord.y}})
+        else if(EP.nativeParameter.coord.x < -70.75)
+          updateEndPose(path.id,{coord:{x:70.75,y:EP.nativeParameter.coord.y}})
+        if(EP.nativeParameter.coord.y > 70.75) 
+          updateEndPose(path.id,{coord:{y:70.75,x:EP.nativeParameter.coord.x}})
+        else if(EP.nativeParameter.coord.y < -70.75)
+          updateEndPose(path.id,{coord:{y:-70.75,x:EP.nativeParameter.coord.x}})
+
+      }
 
       //connected path stuff
 
       paths.forEach((path,index)=>{
-        if(index == 0){
-          if(path.firstPose != null) updatePath(path.id,{firstPose:null})
-        }else{
-          if(paths[index - 1].controlPoints.length > 0){
-            const endCP = paths[index -1].controlPoints.at(-1)
-            if (path.firstPose !== endCP) updatePath(path.id, { firstPose: endCP })
-          }else{
-            if(path.firstPose != null) updatePath(path.id,{firstPose:null})
-          }
+        if(index != 0){
+
+          const prevPath = paths[index -1]
+          if (path.firstPose !== prevPath.endPose) updatePath(path.id, { firstPose: prevPath.endPose })
+          
         }
       })
     })
@@ -280,6 +307,44 @@ export default function PathControls({
                                 >
                                   <Button className="grow ml-3 mr-3 mb-2" onClick={()=>addExternalControlPoint(path.id, path.controlPoints)}>Add External</Button>
                                   <SortableContent className="flex flex-col gap-2">
+
+                                  
+                                    <div className="flex flex-row items-center justify-between py-1">
+                                      <div className="flex flex-row mt-1">
+                                        <div className="mt-1 mr-3">Start:</div>
+                                        <div className="mt-1.25 mr-0.5">X:</div>
+                                        <Input
+                                          placeholder="X"
+                                          min={-70.75}
+                                          max={70.75}
+                                          step={0.1}
+                                          value={path.firstPose.nativeParameter?.coord.x}
+                                          onChange={(e)=>{
+                                            updateFirstPose(path.id,{coord:{
+                                              x:handleNumberInput(e),
+                                              y:path.firstPose.nativeParameter?.coord.y ?? 0
+                                            }})
+                                          }}
+                                          onBlur={(e)=>handleInputBlur(e,-70.75,70.75)}
+                                          className="min-w-20 transition-colors focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
+                                        />
+                                        <div className=" ml-1.5 mr-0.5 mt-1.25">Y:</div>
+                                        <Input
+                                          placeholder="Y"
+                                          min={-70.75}
+                                          max={70.75}
+                                          value={path.firstPose.nativeParameter?.coord.y}
+                                          onChange={(e)=>{
+                                            updateFirstPose(path.id,{coord:{
+                                              x:handleNumberInput(e),
+                                              y:path.firstPose.nativeParameter?.coord.y ?? 0
+                                            }})
+                                          }}
+                                          onBlur={(e)=>handleInputBlur(e,-70.75,70.75)}
+                                          className="min-w-20 transition-colors focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
+                                        />
+                                      </div>
+                                    </div>
                                     {(path.controlPoints || []).map((controlPoint) => (
                                       <SortableItem key={controlPoint.id} value={controlPoint.id} asChild>
                                         <div className="flex flex-row items-center justify-between py-1">
@@ -385,13 +450,49 @@ export default function PathControls({
                                           </div>
 
                                           <SortableItemHandle asChild>
-                                            <Button variant="ghost" size="icon" className="size-8 cursor-grab active:cursor-grabbing text-zinc-400 hover:text-white">
+                                            <Button variant="ghost" size="icon" className="size-8 cursor-grab -ml-1 active:cursor-grabbing text-zinc-400 hover:text-white">
                                               <GripVertical className="h-4 w-4" />
                                             </Button>
                                           </SortableItemHandle>
                                         </div>
                                       </SortableItem>
                                     ))}
+                                    <div className="flex flex-row items-center justify-between py-1">
+                                      <div className="flex flex-row mt-1">
+                                        <div className="mt-1 mr-7">End:</div>
+                                        <div className="mt-1.25 mr-0.5">X:</div>
+                                        <Input
+                                          placeholder="X"
+                                          min={-70.75}
+                                          max={70.75}
+                                          step={0.1}
+                                          value={path.endPose.nativeParameter?.coord.x}
+                                          onChange={(e)=>{
+                                            updateEndPose(path.id,{coord:{
+                                              x:handleNumberInput(e),
+                                              y:path.endPose.nativeParameter?.coord.y ?? 0
+                                            }})
+                                          }}
+                                          onBlur={(e)=>handleInputBlur(e,-70.75,70.75)}
+                                          className="min-w-20 transition-colors focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
+                                        />
+                                        <div className=" ml-1.5 mr-0.5 mt-1.25">Y:</div>
+                                        <Input
+                                          placeholder="Y"
+                                          min={-70.75}
+                                          max={70.75}
+                                          value={path.endPose.nativeParameter?.coord.y}
+                                          onChange={(e)=>{
+                                            updateEndPose(path.id,{coord:{
+                                              y:handleNumberInput(e),
+                                              x:path.endPose.nativeParameter?.coord.x ?? 0
+                                            }})
+                                          }}
+                                          onBlur={(e)=>handleInputBlur(e,-70.75,70.75)}
+                                          className="min-w-20 transition-colors focus-visible:border-red-500 focus-visible:ring-red-500 bg-zinc-900"
+                                        />
+                                      </div>
+                                    </div>
                                   </SortableContent>
 
                                   <SortableOverlay>

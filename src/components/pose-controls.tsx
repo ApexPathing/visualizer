@@ -113,7 +113,7 @@ export default function PoseControls ({
           onValueChange={setPoses}
           getItemValue={(pose) => pose.id}
         >
-          <SortableContent className="flex flex-col w-full">
+          <SortableContent className="flex flex-row w-full">
             {poses.map((pose) => (
               <SortableItem key={pose.id} value={pose.id} id={`${pose.id}`} className="hover:transparent" asChild>
                 <div className="p-1">
@@ -200,7 +200,6 @@ export default function PoseControls ({
                               </FieldLabel>
                                 <Input
                                   id={`x-${pose.id}`}
-                                  type="number"
                                   placeholder="X"
                                   min={-70.75}
                                   max={70.75}
@@ -216,7 +215,6 @@ export default function PoseControls ({
                               </FieldLabel>
                               <Input
                                 id={`y-${pose.id}`}
-                                type="number"
                                 placeholder="Y"
                                 min={-70.75}
                                 max={70.75}
@@ -235,7 +233,6 @@ export default function PoseControls ({
                               </FieldLabel>
                               <Input
                                 id={`heading-${pose.id}`}
-                                type="number"
                                 placeholder="Heading"
                                 min={0}
                                 max={360}
@@ -252,7 +249,6 @@ export default function PoseControls ({
                               </FieldLabel>
                               <Input
                                 id={`radius-${pose.id}`}
-                                type="number"
                                 placeholder="Radius"
                                 disabled={!pose.arcPose} // TODO: Add limits and clamping for radius (make sure to account for units)
                                 className="w-20 transition-all duration-300 ease-in-out focus-visible:border-red-500 focus-visible:ring-red-500 disabled:cursor-not-allowed disabled:opacity-40 bg-zinc-900"
