@@ -21,4 +21,4 @@ To aid in development, fork the main [repository](https://github.com/ApexPathing
 
 ## Video Demo
 Here is a quick video demo on how you can create paths, it will be updated as development continues:
-https://github.com/user-attachments/assets/8bf5913a-63f3-42a8-bca8-85d4ac9499a3
+https://github.com/user-attachments/assets/5ea15fcb-439f-47b6-b01e-b5d0c848bcf6
