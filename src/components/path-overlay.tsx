@@ -76,7 +76,7 @@ export default function DrawPaths({
   let scaleX:number;
   let scaleY:number;
 
-  const currentNativeIdRef = useRef<number | null>(null); 
+  const currentNativeIdRef = useRef<number>(0); 
   
 
   
@@ -113,7 +113,7 @@ export default function DrawPaths({
 
     let is_mouse_in_vector = (x:number,y:number,vector:Vector)=>{
 
-      const tolerance = 10;
+      const tolerance = 12;
 
       let squaredDist = (x - vector.x)**2 + (y - vector.y)**2
     
@@ -183,23 +183,23 @@ export default function DrawPaths({
     let mouse_up = (event: MouseEvent) => {
       if(isDraggingPoseRef.current ){
         event.preventDefault();
-        if(currentShapeIndexRef.current != -1){
-          let current_shape = shapes[currentShapeIndexRef.current]
-          
-          const id = current_shape.poseId;
-          updatePose(id,{
-            x:Number(((current_shape.x - centerX) / scaleX).toFixed(3)),
-            y:Number(((centerY - current_shape.y) / scaleY).toFixed(3)),
-          open:""
-          })
-          if(ctx)
-          ctx.globalAlpha = 1;
+      
+        let current_shape = shapes[currentShapeIndexRef.current]
         
-          
-          isDraggingPoseRef.current = false;
-          
-        }
-       
+        const id = current_shape.poseId;
+        updatePose(id,{
+          x:Number(((current_shape.x - centerX) / scaleX).toFixed(3)),
+          y:Number(((centerY - current_shape.y) / scaleY).toFixed(3)),
+        open:""
+        })
+        if(ctx)
+        ctx.globalAlpha = 1;
+      
+        
+        isDraggingPoseRef.current = false;
+        
+      
+      
       }else if(isDraggingNativeRef.current) {
         const currentNative = natives.find((CP)=>CP.id == currentNativeIdRef.current)
         
@@ -503,7 +503,7 @@ export default function DrawPaths({
 
       shapes.forEach((shape)=>{
 
-        if(currentShapeIndexRef.current != -1 && currentShapeIndexRef.current == shapes.indexOf(shape)){
+        if(currentShapeIndexRef.current == shapes.indexOf(shape)){
           ctx.beginPath();
           let activePose = localPoses.find(p => p.id === shape.poseId);
           ctx.fillStyle = "white";
@@ -527,7 +527,7 @@ export default function DrawPaths({
         } 
       })
 
-      pathsRef.current.forEach((path)=>{ 
+      pathsRef.current.forEach((path,index)=>{ 
         path.controlPoints.forEach((CP)=>{
           if(CP.isNative && CP.nativeParameter){
             if(currentNativeIdRef.current == CP.id){
@@ -549,7 +549,7 @@ export default function DrawPaths({
           }
         })
 
-        if(currentNativeIdRef.current == path.firstPose.id){
+        if(currentNativeIdRef.current == path.firstPose.id && index == 0){
           ctx.beginPath();
           ctx.fillStyle = "rgba(255,0,0,0.4)";
           const FP = path.firstPose.nativeParameter?.coord;
@@ -688,28 +688,27 @@ export default function DrawPaths({
     
     <div className="flex h-full w-full items-center justify-center overflow-hidden min-h-0 min-w-0">
 
-      <div className="relative flex flex-col max-h-full max-w-full min-h-0 min-w-0 items-center justify-center">
-        <div
-          style={{ maxWidth: '710px', maxHeight: '687px' }}
-        >
-          <img
-            ref={imageRef}
-            src={image}
-            className="block aspect-square max-h-full max-w-full w-auto h-auto object-contain select-none pointer-events-none"
-            alt="Field"
-            draggable="false"
-            id="field"
-            unselectable = "on"
-            onLoad={() => setImageLoaded(true)}
-          />
-          
-          <canvas
-            ref={canvasRef}
-            id="field-canvas"
-            className="absolute inset-0 w-full h-full "
-          />
-        </div>
-        <PlaybackControls/> 
+      <div 
+      className="relative flex flex-col max-h-full max-w-full min-h-0 min-w-0 items-center justify-center"
+      style={{ maxWidth: '735px', maxHeight: '735px' }}
+      >
+      
+        <img
+          ref={imageRef}
+          src={image}
+          className="block aspect-square max-h-full max-w-full w-auto h-auto object-contain select-none pointer-events-none"
+          alt="Field"
+          draggable="false"
+          id="field"
+          unselectable = "on"
+          onLoad={() => setImageLoaded(true)}
+        />
+        
+        <canvas
+          ref={canvasRef}
+          id="field-canvas"
+          className="absolute inset-0 w-full h-full "
+        />
       </div>
       
     </div>
