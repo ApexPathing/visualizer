@@ -32,7 +32,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <ThemeProvider forcedTheme="dark" attribute="class" >
           <div className=" lg:hidden fixed inset-0 z-50 flex flex-col items-center justify-center backdrop-blur-md p-6 text-center">
             <p className="px-4 text-lg font-medium">
-              Your screen resolution is too small to use the visualizer. Please resize the window or use a larger screen.
+              Your screen is too small to use the visualizer. Please resize the window or use a larger screen.
             </p>
           </div>
 
