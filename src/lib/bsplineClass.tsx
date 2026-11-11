@@ -5,6 +5,7 @@ export class bsplineClass {
     //init actually used global variables
     cx: number[][] = []
     cy: number[][] = []
+    arcPoseVectors: {vector: Vector, arcPose: boolean, radius: number}[]
     numSegments = 0
     CMatrix = [
         [-1.0 / 6.0, 3.0 / 6.0, -3.0 / 6.0, 1.0 / 6.0],
@@ -114,6 +115,8 @@ export class bsplineClass {
                 })
             }
         }
+
+        this.arcPoseVectors = arcPoseVectors;
         
 
 
@@ -169,11 +172,11 @@ export class bsplineClass {
                     //we can just use the push() method :)
                     pathVector.push(leftArcPose, vector, rightArcPose)
                 }else{
-                    //we can't forget about if an enpoint has the arcpose toggle!, otherwise, the would get fried
+                    //we can't forget about if an enpoint has the arcpose toggle!, otherwise, they would get fried
                     pathVector.push(vector)
                 }
             }else{
-                //now, if it is just a regular pose,
+                //now, if it is just a regular pose
                 pathVector.push(APV.vector)
             }
         })
@@ -290,6 +293,11 @@ export class bsplineClass {
         return returnValue;
     }
 
+    getArcPoses(index:number){
+
+        
+    }
+
 }
 
 
@@ -307,3 +315,5 @@ function multiplyMatrices(matrix: number[][], window: number[]) {
     }
     return result;
 }
+
+

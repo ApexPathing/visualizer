@@ -142,7 +142,7 @@ export default function PathControls({
         if(EP.nativeParameter.coord.x > 70.75) 
           updateEndPose(path.id,{coord:{x:70.75,y:EP.nativeParameter.coord.y}})
         else if(EP.nativeParameter.coord.x < -70.75)
-          updateEndPose(path.id,{coord:{x:70.75,y:EP.nativeParameter.coord.y}})
+          updateEndPose(path.id,{coord:{x:-70.75,y:EP.nativeParameter.coord.y}})
         if(EP.nativeParameter.coord.y > 70.75) 
           updateEndPose(path.id,{coord:{y:70.75,x:EP.nativeParameter.coord.x}})
         else if(EP.nativeParameter.coord.y < -70.75)

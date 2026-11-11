@@ -113,7 +113,7 @@ export default function PoseControls ({
           onValueChange={setPoses}
           getItemValue={(pose) => pose.id}
         >
-          <SortableContent className="flex flex-row w-full">
+          <SortableContent className="flex flex-col w-full">
             {poses.map((pose) => (
               <SortableItem key={pose.id} value={pose.id} id={`${pose.id}`} className="hover:transparent" asChild>
                 <div className="p-1">
