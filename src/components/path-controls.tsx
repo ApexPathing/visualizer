@@ -18,7 +18,7 @@ import { Card } from "./ui/card";
 import { Field, FieldContent, FieldLabel } from "./ui/field";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuSubTrigger, DropdownMenuTrigger } from "./ui/dropdown-menu";
-import ArcPoseIcon from "@/assets/ArcPoseIcon.svg";
+import SvgArcPoseIcon from "@/assets/ArcPoseIcon";
 
 
 interface PathControlProps {
@@ -114,7 +114,7 @@ export default function PathControls({
           if(CP.nativeParameter.coord.x > 70.75) 
             updateNativePoint(path.id,CP.id,{coord:{x:70.75,y:CP.nativeParameter.coord.y}})
           else if(CP.nativeParameter.coord.x < -70.75)
-            updateNativePoint(path.id,CP.id,{coord:{x:70.75,y:CP.nativeParameter.coord.y}})
+            updateNativePoint(path.id,CP.id,{coord:{x:-70.75,y:CP.nativeParameter.coord.y}})
 
           if(CP.nativeParameter.coord.y > 70.75) 
             updateNativePoint(path.id,CP.id,{coord:{y:70.75,x:CP.nativeParameter.coord.x}})
@@ -128,7 +128,7 @@ export default function PathControls({
         if(FP.nativeParameter.coord.x > 70.75) 
           updateFirstPose(path.id,{coord:{x:70.75,y:FP.nativeParameter.coord.y}})
         else if(FP.nativeParameter.coord.x < -70.75)
-          updateFirstPose(path.id,{coord:{x:70.75,y:FP.nativeParameter.coord.y}})
+          updateFirstPose(path.id,{coord:{x:-70.75,y:FP.nativeParameter.coord.y}})
 
         if(FP.nativeParameter.coord.y > 70.75) 
           updateFirstPose(path.id,{coord:{y:70.75,x:FP.nativeParameter.coord.x}})
@@ -336,8 +336,8 @@ export default function PathControls({
                                           value={path.firstPose.nativeParameter?.coord.y}
                                           onChange={(e)=>{
                                             updateFirstPose(path.id,{coord:{
-                                              x:handleNumberInput(e),
-                                              y:path.firstPose.nativeParameter?.coord.y ?? 0
+                                              y:handleNumberInput(e),
+                                              x:path.firstPose.nativeParameter?.coord.y ?? 0
                                             }})
                                           }}
                                           onBlur={(e)=>handleInputBlur(e,-70.75,70.75)}
@@ -388,7 +388,7 @@ export default function PathControls({
                                             <div className="flex flex-row mt-1">
                                               <DropdownMenu modal={false}>
                                                 <DropdownMenuTrigger className="mr-2 -ml-1 -mt-0.5 bg-transparent hover:bg-transparent p-0 h-auto">
-                                                   <ArcPoseIcon className= "size-4 text-[#00cafc]"/>
+                                                   <SvgArcPoseIcon className= "size-4 text-[#00cafc]"/>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent>
                                                   <DropdownMenuGroup>
